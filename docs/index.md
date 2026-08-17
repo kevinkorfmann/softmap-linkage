@@ -17,6 +17,10 @@ mapping.plot("map.png")
 SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
 framework of markers whose pairwise order reaches the requested support.
 
+New users can follow the [step-by-step guide](guide.md) from installation through
+preparing their own data, validating the input, fitting a diagnostic map, and
+interpreting a final result. The [quick start](quickstart.md) is the compact version.
+
 SoftMap is best suited to doubled-haploid, backcross, or phased RIL data with
 probabilistic genotype calls and many informative offspring. More offspring provide
 more observable crossovers; simply adding many co-segregating markers does not add

@@ -1,5 +1,9 @@
 # Quick start
 
+This page is the shortest path to a result. If this is your first analysis, use the
+[step-by-step guide](guide.md) for environment setup, input validation, output
+interpretation, final-analysis settings, and troubleshooting.
+
 ## Install
 
 ```bash
