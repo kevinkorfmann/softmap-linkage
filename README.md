@@ -15,7 +15,7 @@ supported framework instead of forcing every marker into a precise order.
 Install the package with plotting support:
 
 ```bash
-pip install "softmap-linkage[plot]"
+python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
 ```
 
 Fit and plot a small example:
@@ -24,11 +24,18 @@ Fit and plot a small example:
 import softmap
 
 data = softmap.demo()
-mapping = softmap.fit(data, bootstrap=20, seed=7)
+mapping = softmap.fit(data)
+figure = mapping.plot("map.png")
 
 print(mapping.summary())
-mapping.plot("softmap_example.png")
+print(mapping.ordered_markers[:5])
+print(mapping.marker_table()[:5])
 ```
+
+Open `map.png` to inspect the probability blocks and inferred-versus-reference
+order. The returned Matplotlib figure can be customized, and `marker_table()`
+contains the bin, order rank, framework rank, and bootstrap interval for each
+marker.
 
 Your own data should be an offspring-by-marker NumPy array containing probabilities
 between zero and one:
