@@ -538,10 +538,20 @@ hard calls misleading.</p>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">demo</span><span class="p">()</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">figure</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">ordered_markers</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">marker_table</span><span class="p">()[:</span><span class="mi">5</span><span class="p">])</span>
 </code></pre></div>
 <p>SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
-framework of markers whose pairwise order reaches the requested support.</p>
+framework of markers whose pairwise order reaches the requested support. The code
+above writes this complete example map and keeps the Matplotlib figure available
+for inspection or customization:</p>
+<p><img alt="SoftMap runnable demo result" src="assets/softmap_demo_map.png" /></p>
+<p>The <a href="guide/#3-run-a-small-example">step-by-step guide</a> explains both panels and
+shows how to inspect every marker's bin, rank, framework membership, and bootstrap
+interval.</p>
 <p>New users can follow the <a href="guide/">step-by-step guide</a> from installation through
 preparing their own data, validating the input, fitting a diagnostic map, and
 interpreting a final result. The <a href="quickstart/">quick start</a> is the compact version.</p>
