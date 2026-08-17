@@ -385,6 +385,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#physical-and-genetic-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Physical and genetic map
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -457,6 +468,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#physical-and-genetic-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Physical and genetic map
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -507,6 +529,18 @@ This conversion tests loading, fitting, uncertainty summaries, and plotting, but
 does not perform full F2 phase inference and should not be treated as a revised
 biological map.</p>
 <p>Source: <a href="https://github.com/nedarahnama/Contemporary_hybridization">Rahnamae et al., Contemporary_hybridization</a></p>
+<h2 id="physical-and-genetic-map">Physical and genetic map</h2>
+<p>The source table also contains physical positions in marker names and published
+genetic positions in centimorgans. Load and plot all eight chromosomes with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">positions</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_map_positions</span><span class="p">()</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_physical_vs_genetic</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">positions</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;physical_vs_genetic_map.png&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span>
+</code></pre></div>
+<p>The light-to-dark marker gradient follows physical position and uses <code>#fde0dd</code>,
+<code>#fa9fb5</code>, and <code>#c51b8a</code>.</p>
+<p><img alt="Physical and genetic map" src="../assets/physical_vs_genetic_map.png" /></p>
 
 
 
