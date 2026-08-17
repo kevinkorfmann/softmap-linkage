@@ -1,11 +1,10 @@
+import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import unittest
 
 import numpy as np
 
 import softmap
-
 
 VCF = """##fileformat=VCFv4.3
 ##contig=<ID=chr1,length=1000>
@@ -18,6 +17,26 @@ chr1\t20\t.\tC\tT\t60\tPASS\t.\tGT\t1/1\t0/0\t1/1\t0/1\t0/1
 
 
 class VCFInputTests(unittest.TestCase):
+    def test_parent_oriented_f2_retains_all_three_genotypes(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "family.vcf"
+            path.write_text(VCF)
+            data = softmap.read_vcf(
+                path,
+                chromosome="chr1",
+                parents=("p0", "p1"),
+                cross_design="f2",
+            )
+        self.assertIsInstance(data, softmap.F2LinkageData)
+        self.assertEqual(data.probabilities.shape, (3, 2, 3))
+        self.assertEqual(int(np.argmax(data.probabilities[0, 0])), 0)
+        self.assertEqual(int(np.argmax(data.probabilities[1, 0])), 1)
+        np.testing.assert_allclose(data.probabilities[2, 0], [0.25, 0.5, 0.25])
+        # The parents are REF/ALT-reversed at marker two; parental-state
+        # orientation must remain consistent across the chromosome.
+        self.assertEqual(int(np.argmax(data.probabilities[0, 1])), 0)
+        self.assertEqual(int(np.argmax(data.probabilities[1, 1])), 1)
+
     def test_parent_oriented_backcross_vcf(self):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "family.vcf"
@@ -69,10 +88,12 @@ class VCFInputTests(unittest.TestCase):
             vcf_path = Path(directory) / "family.vcf"
             vcf_path.write_text(VCF)
             bcf_path = Path(directory) / "family.bcf"
-            with pysam.VariantFile(str(vcf_path)) as source:
-                with pysam.VariantFile(str(bcf_path), "wb", header=source.header) as output:
-                    for record in source:
-                        output.write(record)
+            with (
+                pysam.VariantFile(str(vcf_path)) as source,
+                pysam.VariantFile(str(bcf_path), "wb", header=source.header) as output,
+            ):
+                for record in source:
+                    output.write(record)
             data = softmap.read_vcf(
                 bcf_path,
                 parents=("p0", "p1"),

@@ -10,5 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - run: uv run --extra test pytest -q
+      - run: uv run --extra test ruff check softmap tests
+      - run: uv run --extra test ruff format --check softmap tests
+      - run: >-
+          SOFTMAP_DISABLE_RUST=1 uv run --extra test pytest -q
+          --cov=softmap --cov-report=term
       - run: uv run --extra docs mkdocs build --strict
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --extra test
+      - run: uv pip install ./rust
+      - run: .venv/bin/pytest -q tests/test_accelerator.py
+      - run: cargo fmt --manifest-path rust/Cargo.toml -- --check
+      - run: cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings

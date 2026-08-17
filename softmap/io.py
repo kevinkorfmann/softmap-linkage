@@ -8,10 +8,44 @@ from pathlib import Path
 import numpy as np
 
 from .core import (
+    F2MapResult,
     HierarchicalSoftMapResult,
     LikelihoodMDSEnsembleResult,
     SoftMapResult,
 )
+
+
+def write_f2_result_tsv(result: F2MapResult, path: str | Path) -> None:
+    """Write complete-information F2 order, stability, and map coordinates."""
+
+    rank = np.empty(result.order.size, dtype=np.int64)
+    rank[result.order] = np.arange(result.order.size)
+    de_novo_rank = np.empty_like(rank)
+    de_novo_rank[result.de_novo_order] = np.arange(result.order.size)
+    positions = result.genetic_distances.marker_positions_cm
+    with Path(path).open("w", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "marker",
+                "order_rank",
+                "de_novo_order_rank",
+                "stability_rank_left",
+                "stability_rank_right",
+                "genetic_position_cm",
+            ]
+        )
+        for marker, name in enumerate(result.marker_names):
+            writer.writerow(
+                [
+                    name,
+                    int(rank[marker]),
+                    int(de_novo_rank[marker]),
+                    int(result.interval_left[marker]),
+                    int(result.interval_right[marker]),
+                    float(positions[marker]) if np.isfinite(positions[marker]) else "",
+                ]
+            )
 
 
 def read_probability_tsv(path: str | Path) -> tuple[tuple[str, ...], np.ndarray]:
@@ -47,9 +81,10 @@ def read_probability_tsv(path: str | Path) -> tuple[tuple[str, ...], np.ndarray]
 
 
 def write_result_tsv(result: SoftMapResult, path: str | Path) -> None:
-    rep_to_group = {int(marker): group for group, marker in enumerate(result.bins.representatives)}
     representative_rank = np.empty(result.representative_order.size, dtype=np.int64)
-    representative_rank[result.representative_order] = np.arange(result.representative_order.size)
+    representative_rank[result.representative_order] = np.arange(
+        result.representative_order.size
+    )
     framework_lookup = {int(marker): i for i, marker in enumerate(result.framework)}
     with Path(path).open("w", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t")
@@ -88,21 +123,44 @@ def write_likelihood_mds_result_tsv(
 
     rank = np.empty(result.order.size, dtype=np.int64)
     rank[result.order] = np.arange(result.order.size)
+    is_representative = np.zeros(result.order.size, dtype=bool)
+    is_representative[result.bin_representatives] = True
     with Path(path).open("w", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t")
-        writer.writerow([
-            "marker",
-            "order_rank",
-            "stability_rank_left",
-            "stability_rank_right",
-        ])
+        writer.writerow(
+            [
+                "marker",
+                "order_rank",
+                "reported_position",
+                "likelihood_bin",
+                "is_bin_representative",
+                "stability_rank_left",
+                "stability_rank_right",
+                "genetic_position_cm",
+            ]
+        )
         for marker, name in enumerate(result.marker_names):
-            writer.writerow([
-                name,
-                int(rank[marker]),
-                int(result.interval_left[marker]),
-                int(result.interval_right[marker]),
-            ])
+            writer.writerow(
+                [
+                    name,
+                    int(rank[marker]),
+                    int(result.reported_positions[marker]),
+                    int(result.bin_membership[marker]),
+                    int(is_representative[marker]),
+                    int(result.interval_left[marker]),
+                    int(result.interval_right[marker]),
+                    (
+                        float(result.genetic_distances.marker_positions_cm[marker])
+                        if (
+                            result.genetic_distances is not None
+                            and np.isfinite(
+                                result.genetic_distances.marker_positions_cm[marker]
+                            )
+                        )
+                        else ""
+                    ),
+                ]
+            )
 
 
 def write_hierarchical_result_tsv(
@@ -110,12 +168,8 @@ def write_hierarchical_result_tsv(
 ) -> None:
     """Write fine-bin membership and supported HMM framework ranks."""
 
-    scaffold_lookup = {
-        int(group): rank for rank, group in enumerate(result.scaffold)
-    }
-    framework_lookup = {
-        int(group): rank for rank, group in enumerate(result.framework)
-    }
+    scaffold_lookup = {int(group): rank for rank, group in enumerate(result.scaffold)}
+    framework_lookup = {int(group): rank for rank, group in enumerate(result.framework)}
     with Path(path).open("w", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t")
         writer.writerow(

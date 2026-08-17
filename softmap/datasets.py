@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 import numpy as np
 
-from .api import LinkageData
+from .api import F2LinkageData, LinkageData
 from .simulate import simulate_backcross
 
 CONTEMPORARY_HYBRIDIZATION_URL = (
@@ -52,7 +52,10 @@ class MapPositions:
         chromosomes = np.asarray(self.chromosomes, dtype=np.int64)
         physical = np.asarray(self.physical_mb, dtype=np.float64)
         genetic = np.asarray(self.genetic_cm, dtype=np.float64)
-        if any(values.shape != (marker_count,) for values in (chromosomes, physical, genetic)):
+        if any(
+            values.shape != (marker_count,)
+            for values in (chromosomes, physical, genetic)
+        ):
             raise ValueError("coordinate arrays must contain one value per marker")
         if not np.all(np.isfinite(physical)) or not np.all(np.isfinite(genetic)):
             raise ValueError("map coordinates must be finite")
@@ -125,6 +128,49 @@ def contemporary_hybridization(
     )
 
 
+def contemporary_hybridization_f2(
+    *,
+    chromosome: int = 1,
+    markers: int | None = None,
+    source: str | Path = CONTEMPORARY_HYBRIDIZATION_URL,
+) -> F2LinkageData:
+    """Load the complete NN/NS/SS F2 information from the Rahnamae map."""
+
+    if markers is not None and markers < 2:
+        raise ValueError("markers must be at least two")
+    text = _read_source(source)
+    reader = csv.reader(io.StringIO(text))
+    next(reader, None)
+    rows = [row for row in reader if len(row) >= 5 and row[1] == str(chromosome)]
+    if not rows:
+        raise ValueError(f"chromosome {chromosome} was not found")
+    if markers is not None and markers < len(rows):
+        indices = np.linspace(0, len(rows) - 1, markers).round().astype(int)
+        rows = [rows[int(index)] for index in indices]
+
+    prior = np.asarray((0.25, 0.50, 0.25), dtype=np.float64)
+    probabilities = np.tile(prior, (len(rows[0]) - 3, len(rows), 1))
+    calls = {"NN": 0, "NS": 1, "SS": 2}
+    for marker, row in enumerate(rows):
+        for offspring, call in enumerate(row[3:]):
+            if call in calls:
+                probabilities[offspring, marker] = 0.0
+                probabilities[offspring, marker, calls[call]] = 1.0
+    try:
+        physical_positions = np.asarray(
+            [float(row[0].rsplit("_", 1)[1]) for row in rows]
+        )
+    except (IndexError, ValueError):
+        physical_positions = None
+    return F2LinkageData(
+        probabilities,
+        tuple(row[0] for row in rows),
+        np.asarray([float(row[2]) for row in rows]),
+        f"Rahnamae et al. (2025), chromosome {chromosome}, complete F2",
+        physical_positions,
+    )
+
+
 def contemporary_map_positions(
     *, source: str | Path = CONTEMPORARY_HYBRIDIZATION_URL
 ) -> MapPositions:
@@ -179,10 +225,15 @@ def grav2_ril(
     try:
         columns = [genotype_index[name] for name in marker_names]
     except KeyError as error:
-        raise ValueError(f"marker {error.args[0]!r} is absent from the genotype table") from error
+        raise ValueError(
+            f"marker {error.args[0]!r} is absent from the genotype table"
+        ) from error
     calls = {"L": 0.01, "C": 0.99, "-": 0.5, "NA": 0.5, "": 0.5}
     probabilities = np.asarray(
-        [[calls.get(row[column], 0.5) for column in columns] for row in genotype_rows[1:]],
+        [
+            [calls.get(row[column], 0.5) for column in columns]
+            for row in genotype_rows[1:]
+        ],
         dtype=np.float64,
     )
     return LinkageData(
@@ -214,15 +265,21 @@ def hyper_backcross(
         row.split("\t") for row in _read_source(map_source).splitlines() if row.strip()
     ]
     chromosomes = [
-        row.strip() for row in _read_source(chromosome_source).splitlines() if row.strip()
+        row.strip()
+        for row in _read_source(chromosome_source).splitlines()
+        if row.strip()
     ]
     if not genotypes or len(map_rows) != len(chromosomes):
         raise ValueError("the hyper backcross source tables are empty or misaligned")
     if any(len(row) != len(map_rows) for row in genotypes):
         raise ValueError("the hyper genotype rows do not match the marker map")
-    selected = [index for index, value in enumerate(chromosomes) if value == str(chromosome)]
+    selected = [
+        index for index, value in enumerate(chromosomes) if value == str(chromosome)
+    ]
     if len(selected) < 2:
-        raise ValueError(f"chromosome {chromosome} was not found or has fewer than two markers")
+        raise ValueError(
+            f"chromosome {chromosome} was not found or has fewer than two markers"
+        )
 
     calls = {"0": 0.01, "1": 0.99, "9": 0.5}
     probabilities = np.asarray(

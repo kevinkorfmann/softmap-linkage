@@ -5,6 +5,11 @@ __pycache__/
 site/
 build/
 dist/
+rust/target/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 example_output/
 softmap_example.png
 .DS_Store

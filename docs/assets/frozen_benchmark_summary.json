@@ -1,0 +1,65 @@
+{
+  "description": "Values rendered in frozen_benchmark_summary.{png,svg}",
+  "comparisons": [
+    {
+      "label": "Sparse backcross\n50 offspring \u00b7 300 markers \u00b7 1\u00d7",
+      "comparator": "GUSMap",
+      "paired_seeds": 100,
+      "softmap_error": 0.07266224532460237,
+      "comparator_error": 0.08857419811118927,
+      "speedup": 3.3003682590571715,
+      "qualification": "",
+      "error_ratio": 0.8203545374849203
+    },
+    {
+      "label": "Dense backcross\n100 offspring \u00b7 300 markers \u00b7 2\u00d7",
+      "comparator": "GUSMap",
+      "paired_seeds": 20,
+      "softmap_error": 0.02022026708339542,
+      "comparator_error": 0.02057924913771577,
+      "speedup": 12.137851569724806,
+      "qualification": "",
+      "error_ratio": 0.982556115049774
+    },
+    {
+      "label": "Scalable backcross\n100 offspring \u00b7 1,000 markers \u00b7 2\u00d7",
+      "comparator": "GUSMap",
+      "paired_seeds": 20,
+      "softmap_error": 0.011795136211211572,
+      "comparator_error": 0.013200540120002338,
+      "speedup": 6.112811006252053,
+      "qualification": "",
+      "error_ratio": 0.8935343632900896
+    },
+    {
+      "label": "Low-information backcross\n50 offspring \u00b7 300 markers \u00b7 1\u00d7",
+      "comparator": "GUSMap",
+      "paired_seeds": 20,
+      "softmap_error": 0.07703063400674706,
+      "comparator_error": 0.11082189160551328,
+      "speedup": 11.456587141187148,
+      "qualification": "3 honest SoftMap abstentions",
+      "error_ratio": 0.6950849953089491
+    },
+    {
+      "label": "High-information backcross\n200 offspring \u00b7 300 markers \u00b7 5\u00d7",
+      "comparator": "GUSMap",
+      "paired_seeds": 19,
+      "softmap_error": 0.004897621568932339,
+      "comparator_error": 0.007235347797949093,
+      "speedup": 14.928973979701416,
+      "qualification": "19 complete pairs; 1 GUSMap failure",
+      "error_ratio": 0.6769020240216513
+    },
+    {
+      "label": "Complete F2\n300 offspring \u00b7 300 markers \u00b7 10% missing",
+      "comparator": "OneMap 3",
+      "paired_seeds": 20,
+      "softmap_error": 0.0027762042239686193,
+      "comparator_error": 0.007904085117956828,
+      "speedup": 44.38746567943337,
+      "qualification": "",
+      "error_ratio": 0.3512366304939611
+    }
+  ]
+}

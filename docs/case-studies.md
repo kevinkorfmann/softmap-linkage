@@ -1,135 +1,96 @@
-# Published-data case studies
+# Rahnamae F2 map
 
-Three public mapping datasets, three different experimental designs, and one
-deliberately simple test: **after hiding the published marker order, what does
-SoftMap recover—and where does it refuse to be overconfident?**
+![Raw evidence, genotype-only draft, and final SoftMap map for chromosome 3](assets/rahnamae_chr3_three_stage.png)
 
-Every case starts from the study's real genotype table. Marker columns are shuffled
-with a fixed seed, calls are converted to binary parental-origin probabilities, and
-SoftMap is run with 100 bootstrap replicates. The published centimorgan coordinates
-are used only afterward as an external order check.
+This is the raw-to-result view. The first panel is the untouched NN/NS/SS call
+matrix in source-table order. It is intentionally labeled “not a map”: independent
+F2 offspring make raw calls look noisy even when markers are correctly ordered.
+The second panel is the first actual map—the genotype-only de-novo draft. The
+third is the final reference-guided SoftMap result.
 
-## At a glance
+## All eight chromosomes
 
-| Study and material | Reanalysis slice | SoftMap result | What it demonstrates |
-| --- | ---: | ---: | --- |
-| Rahnamae et al., *Arabis* hybrids | Chr 1 · 742 offspring · 304 markers | 50 bins · 18-marker framework · r = 0.962 | Dense markers help after redundant patterns are binned |
-| Moore et al., *Arabidopsis* recombinant inbred lines (RILs) | Chr 1 · 162 lines · 26 markers | 26-marker framework · r = 0.999 | Near-complete recovery in a phase-compatible RIL design |
-| Sugiyama et al., mouse backcross | Chr 1 · 250 males · 22 markers | 2-marker framework · r = 0.701 | Selective genotyping correctly produces limited support |
+![Complete-F2 SoftMap maps for all eight chromosomes](assets/physical_softmap_outputs_grid.png)
 
-`r` is the absolute Pearson correlation between inferred rank and the published
-centimorgan position for representative markers. Chromosome orientation is
-arbitrary, so the sign is ignored. A published map is a useful benchmark, not
-error-free ground truth.
+SoftMap now uses the complete Rahnamae F2 information: all 742 offspring, all
+2,082 markers, and all NN, NS, and SS calls. Heterozygotes are no longer replaced
+by unknown binary values.
 
-## Arabidopsis gravitropism
+The comparison shown above is a real before/after:
 
-*Plant recombinant inbred lines.* This is the clean recovery case: all 26
-chromosome-1 markers enter the supported framework in almost exactly the published
-order.
+1. “before” is the genotype-only likelihood draft, not a randomized order;
+2. physical position then supplies the final reference-guided marker order;
+3. the exact two-locus F2 likelihood estimates recombination fractions;
+4. the Kosambi map function converts adjacent fractions to cM;
+5. published genetic positions are used only for the benchmark below.
 
-![SoftMap result for chromosome 1 of the Moore Arabidopsis recombinant inbred line dataset](assets/case_arabidopsis_ril.png)
-
-| Lines | Markers | Framework markers | Order correlation |
-| ---: | ---: | ---: | ---: |
-| 162 | 26 | 26 | 0.999 |
-
-### Input
-
-The input is replicate 2 from Moore et al. (2013), an Arabidopsis Bay × Sha
-recombinant-inbred population used to study root gravitropism. Homozygous L and C
-calls become 0.01 and 0.99; missing calls remain 0.5.
-
-### Interpretation
-
-The probability matrix becomes a continuous block pattern after ordering, and every
-representative marker passes 80% pairwise bootstrap support. This is the expected
-behavior when the cross matches the model and the chromosome contains enough
-informative recombinations.
-
-Sources: [original study](https://doi.org/10.1534/genetics.113.152678) and
-[R/qtl2 source data](https://rqtl.org/qtl2/pages/sampledata.html).
-
-## Arabis floodplain hybrids
-
-*Plant contemporary hybridization.* This is a dense, phase-limited example: all
-304 source markers reduce to 50 informative segregation patterns and a supported
-18-marker framework.
-
-![SoftMap result for chromosome 1 of the Rahnamae Arabis hybridization dataset](assets/case_arabis_hybridization.png)
-
-| Offspring | Markers | Bins | Framework markers | Order correlation |
+| Chr | Markers | SoftMap length (cM) | Published length (cM) | Position correlation |
 | ---: | ---: | ---: | ---: | ---: |
-| 742 | 304 | 50 | 18 | 0.962 |
+| 1 | 304 | 210.65 | 184.86 | 0.9997 |
+| 2 | 232 | 145.40 | 129.14 | 0.9999 |
+| 3 | 244 | 207.37 | 207.66 | 1.0000 |
+| 4 | 369 | 186.34 | 185.59 | 1.0000 |
+| 5 | 202 | 155.46 | 140.11 | 0.9991 |
+| 6 | 160 | 139.32 | 138.12 | 1.0000 |
+| 7 | 220 | 117.03 | 114.96 | 0.9989 |
+| 8 | 351 | 263.07 | 239.71 | 0.9984 |
 
-### Input
+Correlation is between SoftMap and published genetic coordinates for the same
+markers. The minimum is 0.9984; map-length error ranges from 0.1% to 13.9%. The
+comparison uses no fitted scaling to force agreement.
 
-The input contains all 304 chromosome-1 markers from Rahnamae et al. (2025). NN and
-SS calls become 0.01 and 0.99. Heterozygous NS and missing calls become 0.5 because
-their phase is unresolved in SoftMap's binary representation.
+## Why the published maps look clean
 
-### Interpretation
+Rahnamae and colleagues did not publish a raw, randomized marker plot. Their
+pipeline used complete F2 genotypes, marker filtering and correction, imputation,
+MSTmap/ASMap ordering, the Kosambi map function, physical orientation, and manual
+review of several chromosomes. Those steps remove genotyping artifacts and use the
+assembly to resolve regions where segregation alone is ambiguous.
 
-This is a conversion stress test, not a replacement F2 map. Automatic binning
-groups patterns with at most 2% expected disagreement before ordering: 304 markers
-become 50 bins, 18 of which enter the 80%-supported framework. The chromosome-scale
-agreement shows the value of the full marker set without treating unphased
-heterozygotes as binary parental-origin information.
+SoftMap therefore shows the genotype-only draft on the left and the final
+reference-guided, genotype-derived cM map on the right. The draft remains in every
+result as `de_novo_order_rank`; it is not manufactured or hidden.
 
-Source: [study repository and data](https://github.com/nedarahnama/Contemporary_hybridization).
+## Reproduce it
 
-## Salt-induced hypertension in mice
+```bash
+python examples/contemporary_hybridization.py
+```
 
-*Mammal backcross.* This is the cautionary case: the point order follows the
-published map broadly, but bootstrap evidence supports only two framework markers.
-
-![SoftMap result for chromosome 1 of the Sugiyama mouse hypertension backcross](assets/case_mouse_backcross.png)
-
-| Offspring | Markers | Framework markers | Order correlation |
-| ---: | ---: | ---: | ---: |
-| 250 | 22 | 2 | 0.701 |
-
-### Input
-
-The input is chromosome 1 from the Sugiyama et al. (2001) mouse backcross. Calls 0
-and 1 become 0.01 and 0.99; missing calls become 0.5. The original experiment typed
-many markers only in animals with extreme blood-pressure phenotypes.
-
-### Interpretation
-
-Selective genotyping leaves different markers informed by different subsets of
-offspring. SoftMap can propose a point order, but the resampled data do not justify
-a long fixed framework. Reporting two supported markers is more useful than
-presenting all 22 as equally certain.
-
-Sources: [original study](https://doi.org/10.1006/geno.2000.6411) and
-[R/qtl dataset documentation](https://github.com/kbroman/qtl/blob/main/man/hyper.Rd).
-
-## Reproduce the analyses
-
-The loaders read the public source tables directly; no processed genotype files are
-stored in this repository.
+Or fit one chromosome:
 
 ```python
 import softmap
 
-data = softmap.grav2_ril(chromosome=1).shuffled(seed=12)
-mapping = softmap.fit(
-    data,
-    bootstrap=100,
-    confidence=0.8,
-    seed=8,
-    bin_threshold=0.005,
-)
-mapping.plot("case.png")
+data = softmap.contemporary_hybridization_f2(chromosome=1)
+mapping = softmap.fit_f2(data, use_physical_scaffold=True)
+mapping.plot("rahnamae-chr1.svg")
+softmap.plot_f2_three_stage(mapping, "rahnamae-chr1-stages.svg")
+print(mapping.summary())
 ```
 
-Run all three cases with:
+The reproducibility script writes PNG/SVG figures and a JSON metrics file, and
+fails if coordinate correlation falls below 0.995 or absolute length error exceeds
+15%.
 
-```bash
-python examples/published_case_studies.py
-```
+[Download the verified benchmark metrics](assets/rahnamae_f2_benchmark.json)
 
-These examples are method checks, not biological reinterpretations of the original
-phenotypes or QTLs. SoftMap estimates marker order and ordering confidence; it does
-not estimate centimorgan distances in these examples.
+[Study repository and source data](https://github.com/nedarahnama/Contemporary_hybridization) ·
+[Article DOI](https://doi.org/10.1111/nph.70779)
+
+SoftMap fits the linkage map only. It does not analyze the study's phenotypes or
+QTLs.
+
+## Independent Arabidopsis RIL confirmation
+
+SoftMap was also tested de novo on four held-out chromosomes from the Moore et
+al. `grav2` recombinant-inbred-line data, with published coordinates used only
+for scoring. It completed all four and had lower mean point-order error than
+ASMap/MSTmap (0.01664 versus 0.01819). SoftMap's stability bands compared 83.38%
+of informative pairs with 0.00162 inversion error.
+
+This block is retained as a formal failure: mean orientation-free correlation was
+0.97242 for both methods, below the frozen 0.98 gate. It therefore demonstrates
+competitive de-novo RIL ordering and honest uncertainty, not a promoted universal
+empirical win. Advanced-RIL genetic-distance expansion remains outside the
+current validated distance scope.
