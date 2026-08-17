@@ -17,6 +17,11 @@ mapping.plot("map.png")
 SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
 framework of markers whose pairwise order reaches the requested support.
 
+SoftMap is best suited to doubled-haploid, backcross, or phased RIL data with
+probabilistic genotype calls and many informative offspring. More offspring provide
+more observable crossovers; simply adding many co-segregating markers does not add
+the same ordering information. See [which data work best](data.md#which-data-work-best).
+
 ![Physical and genetic-map order before and after](assets/physical_order_before_after_grid.png)
 
 The top figure compares physical position with shuffled input rank and inferred

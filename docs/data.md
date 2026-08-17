@@ -1,5 +1,27 @@
 # Input data
 
+## Which data work best?
+
+SoftMap works best when each marker has two possible, phased parental-origin states.
+This is most natural for doubled-haploid, backcross, and phased RIL populations.
+
+| Data feature | Better input | Why it helps |
+| --- | --- | --- |
+| Cross design | Doubled haploid, backcross, or phased RIL | Each allele can be assigned to one of two parental states. |
+| Genotypes | Probabilities derived from read or genotype likelihoods | Uncertain observations contribute less without being discarded or forced into a hard call. |
+| Offspring | More informative offspring with independent crossover histories | Map resolution comes from observed recombination events. More offspring usually help more than adding nearly identical markers. |
+| Markers | Well-distributed, quality-controlled markers with little missing data | Errors and missingness can resemble false crossovers. Co-segregating markers are kept together as bins. |
+| Linkage groups | One established linkage group per run | SoftMap orders markers but does not currently discover linkage groups. |
+
+Values near zero or one should mean strong evidence for the two parental-origin
+states. A value of 0.5 means that the binary state is unknown; it does not generally
+mean “heterozygous.”
+
+Unphased F2 and full-sib populations need an additional phase-aware model before
+they are suitable for biological inference. The Rahnamae et al. (2026) F2 example
+uses heterozygous calls as 0.5 to test loading, ordering, and plotting. It is a
+software demonstration, not a replacement F2 linkage analysis.
+
 ## Probability matrix
 
 SoftMap expects an offspring-by-marker matrix. Values near zero or one represent

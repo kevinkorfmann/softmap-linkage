@@ -37,6 +37,11 @@ between zero and one:
 mapping = softmap.fit(probabilities, marker_names)
 ```
 
+The best inputs are doubled-haploid, backcross, or phased RIL data with genotype
+probabilities, low missingness, and enough offspring to observe informative
+crossovers. More offspring generally improve ordering more than additional markers
+that share the same segregation pattern.
+
 Use at least 100 bootstrap replicates for a final analysis. SoftMap currently
 supports one linkage group from phased binary parental-origin data, such as a
 doubled-haploid or backcross design. It does not infer linkage groups or phase
