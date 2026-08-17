@@ -7,9 +7,12 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-c51b8a.svg)](https://github.com/kevinkorfmann/softmap-linkage/blob/main/LICENSE)
 [![Status: research software](https://img.shields.io/badge/status-research%20software-fa9fb5.svg)](#scope-and-assumptions)
 
-SoftMap builds confidence-aware linkage maps from probabilistic inheritance states.
-It keeps uncertain calls uncertain, groups co-segregating markers, and reports a
-supported framework instead of forcing every marker into a precise order.
+SoftMap is for researchers who already know which markers belong to one linkage
+group and need to determine their order from uncertain genotype data. It converts
+phased, two-state data from doubled-haploid, backcross, or RIL populations into a
+complete marker order, co-segregation bins, and a confidence-supported framework
+with placement uncertainty. It does not discover linkage groups, infer phase for
+general F2 or full-sib crosses, or estimate centimorgan distances.
 
 [Documentation](https://kevinkorfmann.github.io/softmap-linkage/) ·
 [API reference](https://kevinkorfmann.github.io/softmap-linkage/api/)

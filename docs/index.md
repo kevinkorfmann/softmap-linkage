@@ -1,9 +1,11 @@
 # SoftMap
 
-SoftMap takes genotype data for one linkage group and returns a complete marker
-order, a confidence-supported framework, marker-level placement bounds, and
-diagnostic plots. It preserves genotype uncertainty instead of forcing every call
-to zero or one.
+SoftMap is for researchers who already know which markers belong to one linkage
+group and need to determine their order from uncertain genotype data. It converts
+phased, two-state data from doubled-haploid, backcross, or RIL populations into a
+complete marker order, co-segregation bins, and a confidence-supported framework
+with placement uncertainty. It does not discover linkage groups, infer phase for
+general F2 or full-sib crosses, or estimate centimorgan distances.
 
 ## Install
 
