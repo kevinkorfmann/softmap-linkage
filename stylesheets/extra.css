@@ -27,3 +27,128 @@ h6,
 .md-typeset code {
   border-radius: 0.25rem;
 }
+
+.case-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 1.4rem 0 2rem;
+}
+
+.case-summary > div {
+  padding: 0.9rem 1rem;
+  border: 1px solid #d9e7e5;
+  border-radius: 0.55rem;
+  background: linear-gradient(145deg, #f3faf9, #fffdf8);
+  color: #405553;
+  font-size: 0.72rem;
+  letter-spacing: 0.015em;
+}
+
+.case-summary span {
+  display: block;
+  margin-bottom: 0.08rem;
+  color: #00695c;
+  font-size: 1.55rem;
+  line-height: 1.1;
+}
+
+.case-gallery {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.6rem;
+}
+
+.case-card {
+  overflow: hidden;
+  padding: 1.25rem 1.35rem 1.1rem;
+  border: 1px solid #dce4e3;
+  border-top: 0.22rem solid #00897b;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: 0 0.25rem 1rem rgb(35 65 61 / 7%);
+}
+
+.case-card--strong {
+  border-top-color: #2e7d32;
+}
+
+.case-card--caution {
+  border-top-color: #d58b16;
+}
+
+.md-typeset .case-card h2 {
+  margin: 0.18rem 0 0.35rem;
+  font-size: 1.35rem;
+}
+
+.md-typeset .case-card h3 {
+  margin: 1rem 0 0.25rem;
+  color: #31504c;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+
+.case-card__eyebrow {
+  color: #667d79;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.case-card__lead {
+  max-width: 48rem;
+  color: #36514d;
+  font-size: 0.9rem;
+}
+
+.case-card img {
+  width: 100%;
+  margin: 0.55rem 0 0.75rem;
+  border: 1px solid #edf1f0;
+  border-radius: 0.35rem;
+}
+
+.case-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.case-metrics > div {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.35rem;
+  background: #f4f8f7;
+}
+
+.case-metrics dt {
+  color: #6a7e7a;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.case-metrics dd {
+  margin: 0.06rem 0 0;
+  color: #153f39;
+  font-size: 1.05rem;
+}
+
+.case-card__source {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e8eeee;
+  font-size: 0.72rem;
+}
+
+@media screen and (max-width: 600px) {
+  .case-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .case-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

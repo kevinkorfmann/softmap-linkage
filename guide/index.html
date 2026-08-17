@@ -261,6 +261,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case studies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../quickstart/" class="md-nav__link">
         
   
@@ -1053,7 +1080,7 @@ the framework and the uncertainty shown in the plot.</p>
 </tr>
 <tr>
 <td><code>interval_left</code>, <code>interval_right</code></td>
-<td>Bootstrap placement bounds in representative-bin ranks.</td>
+<td>Placement bounds relative to supported framework anchors; <code>-1</code> and the framework size denote positions beyond the two end anchors.</td>
 </tr>
 </tbody>
 </table>
@@ -1123,10 +1150,11 @@ with NumPy:</p>
 <p>Repeat the conversion separately for each linkage group.</p>
 <div class="admonition warning">
 <p class="admonition-title">Probabilities are not genotype labels</p>
-<p>SoftMap does not accept allele strings such as <code>AA</code>, <code>AB</code>, and <code>BB</code> directly.
-Convert calls or genotype likelihoods using a model appropriate for your cross.
-A value of <code>0.5</code> means no information about the binary parental state; it does
-not generally mean heterozygous.</p>
+<p>For manual matrices, convert allele strings such as <code>AA</code>, <code>AB</code>, and <code>BB</code> using
+a model appropriate for your cross. Alternatively, use <code>softmap.read_vcf()</code> to
+convert binary-cross <code>GT</code>, <code>PL</code>, or <code>GL</code> fields. A value of <code>0.5</code> means no
+information about the binary parental state; it does not generally mean
+heterozygous.</p>
 </div>
 <h2 id="6-validate-the-files-before-fitting">6. Validate the files before fitting</h2>
 <p>Create <code>run_softmap.py</code> with these checks first:</p>
@@ -1267,7 +1295,7 @@ rows</strong> and <strong>offspring in columns</strong>:</p>
 </tr>
 <tr>
 <td><code>interval_left</code>, <code>interval_right</code></td>
-<td>Bootstrap placement bounds in representative-bin ranks.</td>
+<td>Placement bounds relative to supported framework anchors; <code>-1</code> and the framework size denote positions beyond the two end anchors.</td>
 </tr>
 </tbody>
 </table>

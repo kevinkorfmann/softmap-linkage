@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="quickstart/">
+        <link rel="next" href="case-studies/">
       
       
         
@@ -292,10 +292,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#scope" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-with-your-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start with your data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-comes-back" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What comes back?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-vcf-fields-are-interpreted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How VCF fields are interpreted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-fitting-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important fitting settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-included-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the included example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#is-softmap-appropriate-for-my-cross" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Is SoftMap appropriate for my cross?
       
     </span>
   </a>
@@ -306,6 +372,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case studies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -499,10 +592,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#scope" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-with-your-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start with your data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-comes-back" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What comes back?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-vcf-fields-are-interpreted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How VCF fields are interpreted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-fitting-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important fitting settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-included-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the included example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#is-softmap-appropriate-for-my-cross" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Is SoftMap appropriate for my cross?
       
     </span>
   </a>
@@ -530,54 +689,280 @@
 
 
 <h1 id="softmap">SoftMap</h1>
-<p>SoftMap creates confidence-aware linkage maps from probabilistic inheritance states.
-It is designed for cases where read depth, imputation, or genotype uncertainty make
-hard calls misleading.</p>
-<p>The small public interface has three main steps:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">demo</span><span class="p">()</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">figure</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">ordered_markers</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">marker_table</span><span class="p">()[:</span><span class="mi">5</span><span class="p">])</span>
+<p>SoftMap takes genotype data for one linkage group and returns a complete marker
+order, a confidence-supported framework, marker-level placement bounds, and
+diagnostic plots. It preserves genotype uncertainty instead of forcing every call
+to zero or one.</p>
+<h2 id="install">Install</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git&quot;</span>
 </code></pre></div>
-<p>SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
-framework of markers whose pairwise order reaches the requested support. The code
-above writes this complete example map and keeps the Matplotlib figure available
-for inspection or customization:</p>
+<h2 id="start-with-your-data">Start with your data</h2>
+<table>
+<thead>
+<tr>
+<th>Your input</th>
+<th>What SoftMap expects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VCF, bgzipped VCF, or BCF</td>
+<td>Passing biallelic SNPs from one chromosome/contig, with offspring genotypes and preferably two parental samples.</td>
+</tr>
+<tr>
+<td>NumPy array</td>
+<td>A finite offspring-by-marker matrix of parental-state-1 probabilities in <code>[0, 1]</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">VCF/BCF with parents</label><label for="__tabbed_1_2">Already oriented VCF/BCF</label><label for="__tabbed_1_3">Probability matrix</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>This is the recommended route when parental samples are available. For a
+backcross, put the recurrent parent first.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">read_vcf</span><span class="p">(</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;family.vcf.gz&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">chromosome</span><span class="o">=</span><span class="s2">&quot;chr1&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;recurrent_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;donor_parent&quot;</span><span class="p">),</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">cross_design</span><span class="o">=</span><span class="s2">&quot;backcross&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">bootstrap</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">)</span>
+</code></pre></div>
+<p>Use <code>cross_design="ril"</code> or <code>"doubled_haploid"</code> for those population types.
+Parent samples are removed from the offspring rows automatically.</p>
+</div>
+<div class="tabbed-block">
+<p>If REF/ALT coding already has the same binary parental-state orientation at
+every marker and the file contains one contig, use the short form:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;offspring.vcf.gz&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">bootstrap</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
+</code></pre></div>
+<p>Call <code>read_vcf()</code> explicitly when you need to select a chromosome or offspring
+samples. Supplying parents is safer when REF/ALT orientation varies relative to
+parental origin.</p>
+</div>
+<div class="tabbed-block">
+<p>Rows are offspring, columns are markers, and each value is the probability of
+parental state 1. A value of 0.5 means that the binary state is unknown.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="p">[</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.92</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">],</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.87</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">],</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">])</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">probabilities</span><span class="p">,</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">marker_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;m1&quot;</span><span class="p">,</span> <span class="s2">&quot;m2&quot;</span><span class="p">,</span> <span class="s2">&quot;m3&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">bootstrap</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>SoftMap fits <strong>one known linkage group per call</strong>. It does not split a genome-wide
+VCF into linkage groups. Use <code>chromosome="..."</code> or prepare each linkage group
+separately.</p>
+<h2 id="what-comes-back">What comes back?</h2>
+<p><code>softmap.fit()</code> returns a <code>Map</code> object. It keeps both convenient, serializable
+outputs and the complete low-level result:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">ordered_markers</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">framework_markers</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">marker_table</span><span class="p">()[:</span><span class="mi">3</span><span class="p">])</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot_marker_order</span><span class="p">(</span><span class="s2">&quot;marker_order.png&quot;</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mapping.summary()</code></td>
+<td>Run status, offspring count, marker count, bin count, framework size, and confidence threshold.</td>
+</tr>
+<tr>
+<td><code>mapping.ordered_markers</code></td>
+<td>Every input marker in the inferred complete order.</td>
+</tr>
+<tr>
+<td><code>mapping.framework_markers</code></td>
+<td>The more defensible backbone whose pairwise order reaches the requested support.</td>
+</tr>
+<tr>
+<td><code>mapping.marker_table()</code></td>
+<td>One row per input marker with its bin, order rank, framework rank, and placement bounds.</td>
+</tr>
+<tr>
+<td><code>mapping.plot(path)</code></td>
+<td>Probability blocks along the inferred map, returned as a Matplotlib figure and optionally saved.</td>
+</tr>
+<tr>
+<td><code>mapping.plot_marker_order(path)</code></td>
+<td>Input marker order compared with inferred order.</td>
+</tr>
+<tr>
+<td><code>mapping.data</code></td>
+<td>The normalized <code>LinkageData</code> used for fitting.</td>
+</tr>
+<tr>
+<td><code>mapping.result</code></td>
+<td>Low-level bin, bootstrap, precedence, framework, and interval arrays.</td>
+</tr>
+</tbody>
+</table>
+<p>The summary <code>status</code> is <code>ok</code> when at least three framework markers are supported;
+otherwise it is <code>limited_support</code>. Limited support is a scientific diagnostic, not
+a software error.</p>
+<p>Each marker-table row contains zero-based ranks:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>marker</code></td>
+<td>Input VCF ID, <code>CHROM:POS</code> fallback, or supplied array marker name.</td>
+</tr>
+<tr>
+<td><code>bin</code></td>
+<td>Co-segregation-bin identifier; markers in one bin are not distinguishable at the selected threshold.</td>
+</tr>
+<tr>
+<td><code>order_rank</code></td>
+<td>Rank of that bin in the complete inferred bin order.</td>
+</tr>
+<tr>
+<td><code>is_representative</code></td>
+<td>Whether the marker represented its bin during fitting.</td>
+</tr>
+<tr>
+<td><code>framework_rank</code></td>
+<td>Supported framework rank, or <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>interval_left</code>, <code>interval_right</code></td>
+<td>Placement relative to framework anchors, not base pairs or centimorgans. <code>-1</code> and the framework size represent positions beyond the end anchors.</td>
+</tr>
+</tbody>
+</table>
+<p>Map orientation is arbitrary: a complete reversal represents the same linkage map.
+SoftMap estimates marker order and support, not centimorgan distances.</p>
+<h2 id="how-vcf-fields-are-interpreted">How VCF fields are interpreted</h2>
+<p><code>read_vcf()</code> converts two genotype states into a state-1 probability:</p>
+<table>
+<thead>
+<tr>
+<th>VCF information</th>
+<th>Output probability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Usable <code>PL</code></td>
+<td>Normalized probability from the two relevant phred-scaled genotype likelihoods.</td>
+</tr>
+<tr>
+<td>Usable <code>GL</code> without <code>PL</code></td>
+<td>Normalized probability from the two relevant log10 genotype likelihoods.</td>
+</tr>
+<tr>
+<td>Compatible <code>GT</code> only</td>
+<td><code>0.01</code> for state 0 or <code>0.99</code> for state 1.</td>
+</tr>
+<tr>
+<td>No usable likelihood and missing/incompatible <code>GT</code></td>
+<td><code>0.5</code>, meaning unknown binary state.</td>
+</tr>
+</tbody>
+</table>
+<p>The loader retains passing biallelic SNPs with two usable inheritance states. It
+skips indels, multiallelic variants, failed filters, monomorphic variants, and
+parent-uninformative markers. It returns offspring-by-marker probabilities, marker
+names, physical VCF positions, and the chromosome label in <code>LinkageData</code>.</p>
+<p>See the <a href="api/">complete API reference</a> for every input argument, filtering rule,
+output field, exception, and an end-to-end export example.</p>
+<h2 id="important-fitting-settings">Important fitting settings</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Practical meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bootstrap=20</code></td>
+<td>Fast diagnostic default.</td>
+</tr>
+<tr>
+<td><code>bootstrap=100</code> or more</td>
+<td>Recommended starting point for a final analysis.</td>
+</tr>
+<tr>
+<td><code>confidence=0.8</code></td>
+<td>Requires 80% pairwise precedence support for framework anchors.</td>
+</tr>
+<tr>
+<td><code>bin_threshold=0.01</code></td>
+<td>Merges markers with at most about 1% expected disagreement; use <code>None</code> for automatic selection.</td>
+</tr>
+<tr>
+<td><code>seed=7</code></td>
+<td>Makes bootstrap results reproducible.</td>
+</tr>
+</tbody>
+</table>
+<p>For a robust complete order with model-sensitivity rank bands instead of a
+confidence-selected framework, see <code>softmap.fit_likelihood()</code> in the
+<a href="api/#likelihood-mds-ensemble-fitting">API reference</a>.</p>
+<h2 id="run-the-included-example">Run the included example</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">demo</span><span class="p">()</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p><img alt="SoftMap runnable demo result" src="assets/softmap_demo_map.png" /></p>
-<p>The <a href="guide/#3-run-a-small-example">step-by-step guide</a> explains both panels and
-shows how to inspect every marker's bin, rank, framework membership, and bootstrap
-interval.</p>
-<p>New users can follow the <a href="guide/">step-by-step guide</a> from installation through
-preparing their own data, validating the input, fitting a diagnostic map, and
-interpreting a final result. The <a href="quickstart/">quick start</a> is the compact version.</p>
+<p>The <a href="guide/">step-by-step guide</a> explains the figure, validation, diagnostic and
+final settings, and result interpretation. The <a href="quickstart/">quick start</a> is the
+shortest runnable path, and the <a href="case-studies/">case studies</a> show plant RIL,
+plant hybrid, and mouse backcross examples.</p>
+<h2 id="is-softmap-appropriate-for-my-cross">Is SoftMap appropriate for my cross?</h2>
 <p>SoftMap is best suited to doubled-haploid, backcross, or phased RIL data with
 probabilistic genotype calls and many informative offspring. More offspring provide
-more observable crossovers; simply adding many co-segregating markers does not add
-the same ordering information. See <a href="data/#which-data-work-best">which data work best</a>.</p>
-<p>The <a href="algorithm/">algorithm guide</a> develops the probability model, graph ordering,
-bootstrap support, framework selection, and placement intervals from biological
-intuition to mathematical formulas.</p>
-<p><img alt="Physical and genetic-map order before and after" src="assets/physical_order_before_after_grid.png" /></p>
-<p>The top figure compares physical position with shuffled input rank and inferred
-genetic-map rank for all eight chromosomes in a 4×4 layout. SoftMap estimates order
-rather than centimorgan distances, so the vertical axes are marker ranks.</p>
-<p><img alt="Marker order before and after" src="assets/marker_order_before_after.png" /></p>
-<p>The marker-matrix figure shows a reproducibly shuffled chromosome 1 from the
-Rahnamae et al. (2026) dataset before and after marker ordering. Both panels contain the same
-probabilities; only the marker columns change. See the
-<a href="plotting/">plotting guide</a> for the conversion and interpretation.</p>
-<h2 id="scope">Scope</h2>
-<p>SoftMap currently accepts one linkage group represented as phased binary
-parental-origin probabilities. It is appropriate for doubled-haploid, backcross,
-or phased RIL-like data. General F2 and full-sib phase inference is outside the
-current model.</p>
-<p>The package is research software. A supported framework can be sparse when the data
-do not contain enough ordering information; that is an informative result.</p>
+more observable crossovers; adding co-segregating markers does not add equivalent
+ordering information.</p>
+<p>General unphased F2 and full-sib phase inference is outside the current model. See
+<a href="data/#which-data-work-best">which data work best</a> before biological
+interpretation. The <a href="algorithm/">algorithm guide</a> explains the probability model,
+ordering, bootstrap support, framework selection, and placement intervals.</p>
+<p>The package is research software. Inspect support summaries and validate the model
+assumptions for your cross before drawing biological conclusions.</p>
 
 
 
