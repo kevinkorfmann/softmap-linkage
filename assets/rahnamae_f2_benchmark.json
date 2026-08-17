@@ -1,0 +1,66 @@
+[
+  {
+    "chromosome": 1,
+    "markers": 304,
+    "position_correlation": 0.9996812925930634,
+    "inferred_length_cm": 210.64736990896543,
+    "published_length_cm": 184.863052404482,
+    "relative_length_error": 0.13947793877203277
+  },
+  {
+    "chromosome": 2,
+    "markers": 232,
+    "position_correlation": 0.9999001993265757,
+    "inferred_length_cm": 145.39772019678125,
+    "published_length_cm": 129.138312233054,
+    "relative_length_error": 0.12590692632240805
+  },
+  {
+    "chromosome": 3,
+    "markers": 244,
+    "position_correlation": 0.9999980722680172,
+    "inferred_length_cm": 207.36885066068393,
+    "published_length_cm": 207.661202044656,
+    "relative_length_error": -0.0014078286222632638
+  },
+  {
+    "chromosome": 4,
+    "markers": 369,
+    "position_correlation": 0.9999910242852205,
+    "inferred_length_cm": 186.34260162805003,
+    "published_length_cm": 185.585950957513,
+    "relative_length_error": 0.004077090246503899
+  },
+  {
+    "chromosome": 5,
+    "markers": 202,
+    "position_correlation": 0.9991093030760058,
+    "inferred_length_cm": 155.4647102198521,
+    "published_length_cm": 140.104749784239,
+    "relative_length_error": 0.10963197507056252
+  },
+  {
+    "chromosome": 6,
+    "markers": 160,
+    "position_correlation": 0.999962993312206,
+    "inferred_length_cm": 139.3238101984961,
+    "published_length_cm": 138.116463133008,
+    "relative_length_error": 0.00874151450233263
+  },
+  {
+    "chromosome": 7,
+    "markers": 220,
+    "position_correlation": 0.9988768053376615,
+    "inferred_length_cm": 117.02649163623937,
+    "published_length_cm": 114.960449291307,
+    "relative_length_error": 0.017971766443753787
+  },
+  {
+    "chromosome": 8,
+    "markers": 351,
+    "position_correlation": 0.9984100311156807,
+    "inferred_length_cm": 263.0646476311814,
+    "published_length_cm": 239.709995466127,
+    "relative_length_error": 0.09742877896952198
+  }
+]

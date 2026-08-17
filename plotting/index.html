@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="../algorithm/">
+        <link rel="prev" href="../data/">
       
       
         <link rel="next" href="../api/">
@@ -261,14 +261,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../case-studies/" class="md-nav__link">
+      <a href="../benchmarks/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Case studies
+    Benchmarks
   
 
     
@@ -315,6 +315,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../case-studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps from real data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guide/" class="md-nav__link">
         
   
@@ -322,7 +349,7 @@
   <span class="md-ellipsis">
     
   
-    Step-by-step guide
+    User guide
   
 
     
@@ -350,33 +377,6 @@
     
   
     Input data
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../algorithm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Algorithm
   
 
     
@@ -456,10 +456,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contemporary-hybridization-example" class="md-nav__link">
+  <a href="#raw-evidence-to-final-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Contemporary hybridization example
+        Raw evidence to final map
       
     </span>
   </a>
@@ -467,10 +467,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#physical-and-genetic-map" class="md-nav__link">
+  <a href="#rahnamaes-eight-chromosomes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Physical and genetic map
+        Rahnamae's eight chromosomes
       
     </span>
   </a>
@@ -478,21 +478,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#marker-order-before-and-after" class="md-nav__link">
+  <a href="#published-physicalgenetic-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Marker order before and after
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#physical-position-before-and-after" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Physical position before and after
+        Published physical–genetic map
       
     </span>
   </a>
@@ -534,6 +523,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How it works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -561,10 +577,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#contemporary-hybridization-example" class="md-nav__link">
+  <a href="#raw-evidence-to-final-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Contemporary hybridization example
+        Raw evidence to final map
       
     </span>
   </a>
@@ -572,10 +588,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#physical-and-genetic-map" class="md-nav__link">
+  <a href="#rahnamaes-eight-chromosomes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Physical and genetic map
+        Rahnamae's eight chromosomes
       
     </span>
   </a>
@@ -583,21 +599,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#marker-order-before-and-after" class="md-nav__link">
+  <a href="#published-physicalgenetic-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Marker order before and after
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#physical-position-before-and-after" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Physical position before and after
+        Published physical–genetic map
       
     </span>
   </a>
@@ -625,91 +630,56 @@
 
 
 <h1 id="plotting">Plotting</h1>
-<p>Every fitted map has a <code>plot</code> method:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.svg&quot;</span><span class="p">)</span>
+<p>Every fitted map has a <code>plot()</code> method:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.svg&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>The probability panel uses the same light-pink → pink → magenta state scale as the
-before/after marker-order plots: state 0 is light, uncertain values near 0.5 are
-pink, and state 1 is dark magenta. Override the three anchors when needed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;map.png&quot;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;#fde0dd&quot;</span><span class="p">,</span> <span class="s2">&quot;#fa9fb5&quot;</span><span class="p">,</span> <span class="s2">&quot;#c51b8a&quot;</span><span class="p">))</span>
+<p>For F2 data, the left panel shows complete AA/AB/BB genotype dosage along the map.
+The right panel shows SoftMap cM against physical position when available.</p>
+<h2 id="raw-evidence-to-final-map">Raw evidence to final map</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_hybridization_f2</span><span class="p">(</span><span class="n">chromosome</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit_f2</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">use_physical_scaffold</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_f2_three_stage</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="s2">&quot;three-stage.svg&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>The first panel displays state probabilities along the inferred map. The second
-panel compares inferred order with reference positions when available; otherwise it
-shows 95% bootstrap rank intervals. The palette is color-vision friendly, and SVG
-is recommended for scalable line and text output.</p>
-<h2 id="contemporary-hybridization-example">Contemporary hybridization example</h2>
-<p>The published example is loaded directly from the source repository:</p>
+<p><img alt="Raw NN/NS/SS calls, genotype-only draft, and final SoftMap map" src="../assets/rahnamae_chr3_three_stage.png" /></p>
+<p>The raw panel uses the observed offspring and original marker order exactly as
+loaded. It is evidence, not an ordering result. The draft is the rawest meaningful
+map, and the final panel adds the explicitly reported physical scaffold.</p>
+<h2 id="rahnamaes-eight-chromosomes">Rahnamae's eight chromosomes</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">softmap</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_hybridization</span><span class="p">(</span><span class="n">chromosome</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shuffled</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">mapping</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">bootstrap</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">bin_threshold</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;contemporary_hybridization.svg&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">maps</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">softmap</span><span class="o">.</span><span class="n">fit_f2</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_hybridization_f2</span><span class="p">(</span><span class="n">chromosome</span><span class="o">=</span><span class="n">chromosome</span><span class="p">),</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">use_physical_scaffold</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">]</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_physical_output_grid</span><span class="p">(</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">maps</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">maps</span><span class="p">,</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="s2">&quot;physical_softmap_outputs_grid.svg&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">use_de_novo_rank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">)</span>
 </code></pre></div>
-<p>The source cross is F2-like and includes NN, NS, and SS calls. For this binary
-software demonstration, NN becomes 0.01, SS becomes 0.99, and NS or missing calls
-become 0.5. The reference positions are the published centimorgan coordinates.
-This conversion tests loading, fitting, uncertainty summaries, and plotting, but it
-does not perform full F2 phase inference and should not be treated as a revised
-biological map.</p>
-<p>Source data: <a href="https://github.com/nedarahnama/Contemporary_hybridization">Rahnamae et al., Contemporary_hybridization</a></p>
-<p>Article: Rahnamae et al. (2026), New Phytologist 249: 1542–1557,
-<a href="https://doi.org/10.1111/nph.70779">doi:10.1111/nph.70779</a>. The article was first
-published online in December 2025; its final citation year is 2026.</p>
-<h2 id="physical-and-genetic-map">Physical and genetic map</h2>
-<p>The source table also contains physical positions in marker names and published
-genetic positions in centimorgans. Load and plot all eight chromosomes with:</p>
+<p><img alt="Complete-F2 SoftMap rank and distance against physical position" src="../assets/physical_softmap_outputs_grid.png" /></p>
+<p>The left plot is an honest noisy “before”: SoftMap's genotype-only de-novo draft,
+computed from all NN/NS/SS calls without randomizing the markers. The right plot
+is the final reference-guided SoftMap output: Kosambi genetic position estimated
+from the same offspring calls after applying the physical scaffold.</p>
+<p>Why are Rahnamae's published maps so clean? Their mapping pipeline also used the
+complete F2 genotypes, extensive marker filtering and correction, the Kosambi map
+function, physical orientation, and manual review of several regions. A clean
+reference-guided map is therefore the result of both genotype evidence and
+curation—not an appropriate baseline to compare with an artificial random order.</p>
+<h2 id="published-physicalgenetic-map">Published physical–genetic map</h2>
+<p>To plot the published coordinates themselves:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">positions</span> <span class="o">=</span> <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_map_positions</span><span class="p">()</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_physical_vs_genetic</span><span class="p">(</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">positions</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;physical_vs_genetic_map.png&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_physical_vs_genetic</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="s2">&quot;published-map.svg&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>The light-to-dark marker gradient follows physical position and uses <code>#fde0dd</code>,
-<code>#fa9fb5</code>, and <code>#c51b8a</code>.</p>
-<p><img alt="Physical and genetic map" src="../assets/physical_vs_genetic_map.png" /></p>
-<h2 id="marker-order-before-and-after">Marker order before and after</h2>
-<p>Use the same fitted map to compare the original marker columns with the inferred
-order:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">mapping</span><span class="o">.</span><span class="n">plot_marker_order</span><span class="p">(</span><span class="s2">&quot;marker_order_before_after.png&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p>The flagship example first shuffles the published marker columns with a fixed seed.
-Both panels contain the same probabilities and offspring. Only the marker columns
-change, making the ordering step visible without changing the underlying data.</p>
-<p><img alt="Marker order before and after" src="../assets/marker_order_before_after.png" /></p>
-<h2 id="physical-position-before-and-after">Physical position before and after</h2>
-<p>Fit one map per chromosome, then place each before/after pair in a 4×4 figure:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">chromosome_maps</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">softmap</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="n">softmap</span><span class="o">.</span><span class="n">contemporary_hybridization</span><span class="p">(</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>            <span class="n">chromosome</span><span class="o">=</span><span class="n">chromosome</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>            <span class="n">markers</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="p">)</span><span class="o">.</span><span class="n">shuffled</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">10</span> <span class="o">+</span> <span class="n">chromosome</span><span class="p">),</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">bootstrap</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">seed</span><span class="o">=</span><span class="mi">20</span> <span class="o">+</span> <span class="n">chromosome</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">bin_threshold</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="p">)</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">]</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">softmap</span><span class="o">.</span><span class="n">plot_physical_order_grid</span><span class="p">(</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="n">chromosome_maps</span><span class="p">,</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="s2">&quot;physical_order_before_after_grid.png&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="p">)</span>
-</code></pre></div>
-<p>Physical position is compared with shuffled input rank and inferred map rank.
-Chromosome orientation is arbitrary and is aligned to physical position for display.
-The vertical axes are labeled as ranks because SoftMap does not estimate centimorgan
-distances.</p>
-<p><img alt="Physical and genetic-map order before and after" src="../assets/physical_order_before_after_grid.png" /></p>
+<p><img alt="Rahnamae published physical and genetic map" src="../assets/physical_vs_genetic_map.png" /></p>
+<p>Source: <a href="https://github.com/nedarahnama/Contemporary_hybridization">Rahnamae et al. Contemporary_hybridization</a> ·
+<a href="https://doi.org/10.1111/nph.70779">doi:10.1111/nph.70779</a></p>
 
 
 
