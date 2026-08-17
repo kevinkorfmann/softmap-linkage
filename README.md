@@ -4,6 +4,8 @@ SoftMap builds confidence-aware linkage maps from probabilistic inheritance stat
 It keeps uncertain calls uncertain, groups co-segregating markers, and reports a
 supported framework instead of forcing every marker into a precise order.
 
+[Documentation](https://kevinkorfmann.github.io/softmap-linkage/)
+
 ## Quick start
 
 Install the package with plotting support:

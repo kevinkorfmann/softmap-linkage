@@ -13,7 +13,7 @@ license = "MIT"
 
 [project.urls]
 Repository = "https://github.com/kevinkorfmann/softmap-linkage"
-Documentation = "https://softmap-linkage.readthedocs.io/"
+Documentation = "https://kevinkorfmann.github.io/softmap-linkage/"
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.9"]
