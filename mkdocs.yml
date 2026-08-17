@@ -22,6 +22,7 @@ extra_javascript:
 nav:
   - Home: index.md
   - Quick start: quickstart.md
+  - Step-by-step guide: guide.md
   - Input data: data.md
   - Algorithm: algorithm.md
   - Plotting: plotting.md
@@ -37,6 +38,8 @@ plugins:
             members_order: source
 markdown_extensions:
   - admonition
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight:

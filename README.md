@@ -63,7 +63,10 @@ replacement analysis of that cross.
 
 ## Documentation
 
-The full guide includes installation, input formats, plotting, and the API reference.
+The [step-by-step guide](https://kevinkorfmann.github.io/softmap-linkage/guide/)
+walks through installation, data preparation, validation, fitting, interpretation,
+and troubleshooting. The full documentation also includes input formats, plotting,
+and the API reference.
 It can be previewed locally with:
 
 ```bash
