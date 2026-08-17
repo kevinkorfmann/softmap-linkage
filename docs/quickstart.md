@@ -1,90 +1,79 @@
 # Quick start
 
-This page is the shortest path to a result. If this is your first analysis, use the
-[step-by-step guide](guide.md) for environment setup, input validation, output
-interpretation, final-analysis settings, and troubleshooting.
-
-## Install
+## 1. Install
 
 ```bash
 python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
 ```
 
-## Run your VCF or BCF
+## 2. Fit one chromosome
 
-For a parent-oriented backcross, use the exact parental sample IDs from the VCF
-header and list the recurrent parent first:
+=== "F2"
+
+    ```python
+    import softmap
+
+    data = softmap.read_vcf(
+        "family.vcf.gz",
+        chromosome="chr1",
+        parents=("PARENT_1", "PARENT_2"),
+        cross_design="f2",
+    )
+    mapping = softmap.fit_f2(data, use_physical_scaffold=True)
+    ```
+
+    `F2LinkageData.probabilities` has shape `(offspring, markers, 3)` for AA,
+    AB, and BB. `PL` or `GL` values are retained as probabilities; `GT` is
+    used when likelihoods are unavailable. The two parent names must identify
+    different homozygotes.
+
+=== "Backcross / DH / RIL"
+
+    ```python
+    import softmap
+
+    data = softmap.read_vcf(
+        "family.vcf.gz",
+        chromosome="chr1",
+        parents=("PARENT_1", "PARENT_2"),
+        cross_design="backcross",  # or "doubled_haploid" / "ril"
+    )
+    mapping = softmap.fit(data, bootstrap=100, seed=7)
+    ```
+
+=== "Binary probability matrix"
+
+    Rows are offspring, columns are markers, and values are parental-state-1
+    probabilities. Use `0.5` for an unknown binary state.
+
+    ```python
+    mapping = softmap.fit(
+        probabilities,
+        marker_names=["m1", "m2", "m3"],
+        bootstrap=100,
+    )
+    ```
+
+## 3. Use the result
 
 ```python
-import softmap
-
-data = softmap.read_vcf(
-    "family.vcf.gz",
-    chromosome="chr1",
-    parents=("BC_PARENT", "DONOR_PARENT"),
-    cross_design="backcross",
-)
-
-mapping = softmap.fit(data, bootstrap=100, confidence=0.8, seed=7)
-
+mapping.plot("map.svg")
 print(mapping.summary())
 print(mapping.ordered_markers[:10])
-print(mapping.framework_markers[:10])
 print(mapping.marker_table()[:3])
-
-mapping.plot("map.png")
 ```
 
-`BC_PARENT` and `DONOR_PARENT` are placeholders, not special SoftMap words. Replace
-them with the two parent column names in your file. The recurrent parent is the
-parent to which offspring were crossed back; the donor is the other parent that
-contributed the alternative allele or trait. SoftMap excludes those two samples
-from the offspring automatically.
+For F2 maps, the table includes the final rank, de-novo likelihood rank,
+model-stability band, and inferred genetic position in cM. With
+`use_physical_scaffold=True`, final rank follows the assembly and the de-novo rank
+remains available for audit.
 
-The input must contain one linkage group of passing biallelic SNPs. Use
-`cross_design="ril"` for a recombinant inbred line population or
-`"doubled_haploid"` for a doubled-haploid population. See the
-[API reference](api.md#variant-file-input) for sample selection, conversion rules,
-and every output field.
+From the command line:
 
-## Run the included example
-
-```python
-from pprint import pprint
-
-import softmap
-
-data = softmap.demo()
-mapping = softmap.fit(data)
-figure = mapping.plot("map.png")
-
-pprint(mapping.summary())
-pprint(mapping.ordered_markers[:5])
-pprint(mapping.marker_table()[:5])
+```bash
+softmap family.vcf.gz map.tsv --chromosome chr1 \
+  --parents PARENT_1 PARENT_2 --cross-design f2 --physical-scaffold
 ```
 
-Open `map.png` to see probability blocks along the inferred map and the inferred
-order against the demo's reference positions. The summary contains the marker and
-bin counts, framework size, and confidence threshold. `marker_table()` exposes the
-bin, order rank, framework rank, and framework-relative placement interval for
-every marker.
-
-For final analyses, increase `bootstrap` to at least 100 and assess stability across
-reasonable seeds and bin thresholds.
-
-## Use an array
-
-If the data are already in NumPy, no container is required:
-
-```python
-import softmap
-
-mapping = softmap.fit(
-    probabilities,
-    marker_names=["m1", "m2", "m3"],
-    bootstrap=100,
-)
-```
-
-Rows are offspring, columns are markers, and every value is the probability of
-parental-origin state 1.
+Next: [input details](data.md), [the Rahnamae benchmark](case-studies.md), or the
+[API reference](api.md).

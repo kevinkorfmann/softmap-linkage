@@ -21,13 +21,14 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 nav:
   - Home: index.md
-  - Case studies: case-studies.md
+  - Benchmarks: benchmarks.md
   - Quick start: quickstart.md
-  - Step-by-step guide: guide.md
+  - Maps from real data: case-studies.md
+  - User guide: guide.md
   - Input data: data.md
-  - Algorithm: algorithm.md
   - Plotting: plotting.md
   - API: api.md
+  - How it works: algorithm.md
 plugins:
   - search
   - mkdocstrings:
@@ -38,7 +39,9 @@ plugins:
             show_root_heading: true
             members_order: source
 markdown_extensions:
+  - attr_list
   - admonition
+  - md_in_html
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.arithmatex:

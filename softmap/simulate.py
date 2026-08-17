@@ -8,7 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.stats import kendalltau
 
-from .core import SoftMapResult
+from .core import GeneticMapDistances, SoftMapResult
 
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]
@@ -26,6 +26,107 @@ class SimulatedCross:
     cross_design: str = "binary_parental_origin"
 
 
+@dataclass(frozen=True)
+class SimulatedF2Cross:
+    """Complete tri-state F2 simulation with known marker order."""
+
+    probabilities: FloatArray
+    genotypes: IntArray
+    true_positions: FloatArray
+    marker_names: tuple[str, ...]
+    input_to_truth: IntArray
+    reference_reads: IntArray | None = None
+    alternate_reads: IntArray | None = None
+
+
+def simulate_f2(
+    *,
+    n_offspring: int = 300,
+    n_markers: int = 80,
+    map_length_morgan: float = 1.0,
+    missing_probability: float = 0.0,
+    mean_depth: float | None = None,
+    read_error: float = 0.01,
+    random_seed: int | None = None,
+    shuffle_markers: bool = True,
+) -> SimulatedF2Cross:
+    """Simulate two F1 gametes and AA/AB/BB genotype probabilities.
+
+    With the default ``mean_depth=None``, observed genotypes are one-hot and
+    missing observations receive the Mendelian 1:2:1 prior. When ``mean_depth``
+    is supplied, Poisson read depth and binomial AA/AB/BB allele emissions are
+    converted to normalized genotype probabilities under the same prior.
+    """
+
+    if n_offspring < 2 or n_markers < 2:
+        raise ValueError("n_offspring and n_markers must be at least two")
+    if map_length_morgan <= 0.0 or not np.isfinite(map_length_morgan):
+        raise ValueError("map_length_morgan must be positive and finite")
+    if not 0.0 <= missing_probability <= 1.0:
+        raise ValueError("missing_probability must lie in [0, 1]")
+    if mean_depth is not None and (not np.isfinite(mean_depth) or mean_depth < 0.0):
+        raise ValueError("mean_depth must be finite and nonnegative")
+    if not np.isfinite(read_error) or not 0.0 < read_error < 0.5:
+        raise ValueError("read_error must lie strictly between zero and 0.5")
+    rng = np.random.default_rng(random_seed)
+    positions = np.sort(rng.uniform(0.0, map_length_morgan, n_markers))
+    gametes = np.empty((n_offspring, 2, n_markers), dtype=np.int64)
+    for offspring in range(n_offspring):
+        for gamete in range(2):
+            start = int(rng.integers(0, 2))
+            crossovers = np.sort(
+                rng.uniform(0.0, map_length_morgan, rng.poisson(map_length_morgan))
+            )
+            gametes[offspring, gamete] = start ^ (
+                np.searchsorted(crossovers, positions, side="right") % 2
+            )
+    genotypes = np.sum(gametes, axis=1)
+    prior = np.asarray((0.25, 0.50, 0.25), dtype=np.float64)
+    reference_reads: IntArray | None = None
+    alternate_reads: IntArray | None = None
+    if mean_depth is None:
+        probabilities = np.zeros((n_offspring, n_markers, 3), dtype=np.float64)
+        offspring_index, marker_index = np.indices(genotypes.shape)
+        probabilities[offspring_index, marker_index, genotypes] = 1.0
+        if missing_probability > 0.0:
+            missing = rng.random(genotypes.shape) < missing_probability
+            probabilities[missing] = prior
+    else:
+        depth = rng.poisson(mean_depth, size=genotypes.shape)
+        allele_probability = np.asarray(
+            (read_error, 0.5, 1.0 - read_error),
+            dtype=np.float64,
+        )
+        alternate_reads = rng.binomial(depth, allele_probability[genotypes])
+        reference_reads = depth - alternate_reads
+        if missing_probability > 0.0:
+            missing = rng.random(genotypes.shape) < missing_probability
+            reference_reads[missing] = 0
+            alternate_reads[missing] = 0
+        log_likelihood = (
+            alternate_reads[:, :, None] * np.log(allele_probability)[None, None, :]
+            + reference_reads[:, :, None] * np.log1p(-allele_probability)[None, None, :]
+            + np.log(prior)[None, None, :]
+        )
+        log_likelihood -= np.max(log_likelihood, axis=2, keepdims=True)
+        probabilities = np.exp(log_likelihood)
+        probabilities /= np.sum(probabilities, axis=2, keepdims=True)
+    permutation = (
+        rng.permutation(n_markers).astype(np.int64)
+        if shuffle_markers
+        else np.arange(n_markers, dtype=np.int64)
+    )
+    return SimulatedF2Cross(
+        probabilities[:, permutation, :],
+        genotypes[:, permutation],
+        positions,
+        tuple(f"m{truth:06d}" for truth in permutation),
+        permutation,
+        (reference_reads[:, permutation] if reference_reads is not None else None),
+        (alternate_reads[:, permutation] if alternate_reads is not None else None),
+    )
+
+
 def simulate_backcross(
     *,
     n_offspring: int = 200,
@@ -34,6 +135,7 @@ def simulate_backcross(
     mean_depth: float = 2.0,
     read_error: float = 0.01,
     contamination: float = 0.0,
+    missing_probability: float = 0.0,
     heterozygous_state: bool = False,
     random_seed: int | None = None,
     shuffle_markers: bool = True,
@@ -44,11 +146,22 @@ def simulate_backcross(
     for haploid or doubled-haploid-like evidence.  With ``heterozygous_state=True``,
     state zero is ``AA`` and state one is ``AB`` with 50:50 allele sampling, giving
     a biologically literal diploid backcross for raw-read comparators such as
-    GUSMap.
+    GUSMap. ``contamination`` mixes each read's allele probability toward 0.5
+    without changing the inference model. ``missing_probability`` independently
+    drops complete offspring-marker read observations after sequencing; dropped
+    observations retain zero reads and posterior probability 0.5.
     """
 
     if n_offspring < 2 or n_markers < 2:
         raise ValueError("n_offspring and n_markers must be at least two")
+    if not np.isfinite(mean_depth) or mean_depth < 0.0:
+        raise ValueError("mean_depth must be finite and nonnegative")
+    if not np.isfinite(read_error) or not 0.0 < read_error < 0.5:
+        raise ValueError("read_error must lie strictly between zero and 0.5")
+    if not np.isfinite(contamination) or not 0.0 <= contamination <= 1.0:
+        raise ValueError("contamination must lie between zero and one")
+    if not np.isfinite(missing_probability) or not 0.0 <= missing_probability <= 1.0:
+        raise ValueError("missing_probability must lie between zero and one")
     rng = np.random.default_rng(random_seed)
     positions = np.sort(rng.uniform(0.0, map_length_morgan, n_markers))
     states = np.empty((n_offspring, n_markers), dtype=np.int64)
@@ -63,15 +176,20 @@ def simulate_backcross(
 
     depth = rng.poisson(mean_depth, size=states.shape)
     state_one_probability = 0.5 if heterozygous_state else 1.0 - read_error
-    allele_probability = np.where(
-        states == 1, state_one_probability, read_error
-    )
+    allele_probability = np.where(states == 1, state_one_probability, read_error)
     allele_probability = (
         allele_probability * (1.0 - contamination) + 0.5 * contamination
     )
     alternate = rng.binomial(depth, allele_probability)
     reference = depth - alternate
-    log_likelihood_0 = alternate * np.log(read_error) + reference * np.log1p(-read_error)
+    if missing_probability > 0.0:
+        missing = rng.random(states.shape) < missing_probability
+        alternate[missing] = 0
+        reference[missing] = 0
+        depth[missing] = 0
+    log_likelihood_0 = alternate * np.log(read_error) + reference * np.log1p(
+        -read_error
+    )
     log_likelihood_1 = (
         depth * np.log(0.5)
         if heterozygous_state
@@ -98,6 +216,112 @@ def simulate_backcross(
         alternate[:, permutation],
         "diploid_backcross" if heterozygous_state else "binary_parental_origin",
     )
+
+
+def evaluate_genetic_map_distances(
+    distances: GeneticMapDistances,
+    bin_representatives: IntArray,
+    cross: SimulatedCross,
+) -> dict[str, float | int | str | None]:
+    """Evaluate fitted cM coordinates against simulated Haldane-map truth."""
+
+    representatives = np.asarray(bin_representatives, dtype=np.int64)
+    marker_count = cross.probabilities.shape[1]
+    if representatives.shape != distances.bin_positions_cm.shape:
+        raise ValueError("bin representatives must match fitted distance bins")
+    if np.any((representatives < 0) | (representatives >= marker_count)):
+        raise ValueError("bin representatives contain an invalid marker index")
+    true_marker_positions_cm = 100.0 * cross.true_positions[cross.input_to_truth]
+    true_span_cm = float(np.ptp(cross.true_positions) * 100.0)
+    estimated_length_cm = distances.map_length_cm
+    common = {
+        "distance_status": distances.status,
+        "distance_method": distances.method,
+        "distance_candidate_pair_count": distances.candidate_pair_count,
+        "distance_informative_pair_count": distances.informative_pair_count,
+        "distance_segment_count": distances.segment_count,
+        "distance_minimum_pair_recombination": (distances.minimum_pair_recombination),
+        "distance_maximum_pair_recombination": (distances.maximum_pair_recombination),
+        "distance_composite_rmse_morgan": distances.composite_rmse_morgan,
+        "distance_composite_median_absolute_residual_morgan": (
+            distances.composite_median_absolute_residual_morgan
+        ),
+        "distance_composite_p90_absolute_residual_morgan": (
+            distances.composite_p90_absolute_residual_morgan
+        ),
+        "true_map_length_cm": true_span_cm,
+        "estimated_map_length_cm": estimated_length_cm,
+    }
+    if estimated_length_cm is None:
+        return {
+            **common,
+            "map_length_relative_error": None,
+            "map_length_inflation": None,
+            "adjacent_recombination_mean_absolute_error": None,
+            "adjacent_recombination_root_mean_square_error": None,
+            "multipoint_adjacent_recombination_mean_absolute_error": None,
+            "regularized_adjacent_recombination_mean_absolute_error": None,
+            "pairwise_adjacent_recombination_mean_absolute_error": None,
+            "representative_position_rmse_cm": None,
+            "endpoint_truth_span_fraction": None,
+        }
+
+    ordered_representatives = representatives[distances.ordered_bins]
+    true_ordered_cm = true_marker_positions_cm[ordered_representatives]
+    estimated_ordered_cm = distances.bin_positions_cm[distances.ordered_bins]
+    if np.corrcoef(estimated_ordered_cm, true_ordered_cm)[0, 1] < 0.0:
+        true_ordered_cm = -true_ordered_cm
+    offset = float(np.median(estimated_ordered_cm - true_ordered_cm))
+    position_error = estimated_ordered_cm - (true_ordered_cm + offset)
+    true_adjacent_morgan = np.abs(np.diff(true_ordered_cm)) / 100.0
+    true_adjacent_recombination = 0.5 * (1.0 - np.exp(-2.0 * true_adjacent_morgan))
+    adjacent_error = (
+        distances.adjacent_local_recombination - true_adjacent_recombination
+    )
+    multipoint_adjacent_error = (
+        distances.adjacent_multipoint_recombination - true_adjacent_recombination
+    )
+    regularized_adjacent_error = (
+        distances.adjacent_recombination - true_adjacent_recombination
+    )
+    pairwise_adjacent_error = (
+        distances.adjacent_pairwise_recombination - true_adjacent_recombination
+    )
+    endpoint_span = abs(float(true_ordered_cm[-1] - true_ordered_cm[0]))
+    return {
+        **common,
+        "map_length_relative_error": (
+            float(estimated_length_cm / true_span_cm - 1.0)
+            if true_span_cm > 0.0
+            else None
+        ),
+        "map_length_inflation": (
+            float(max(estimated_length_cm / true_span_cm - 1.0, 0.0))
+            if true_span_cm > 0.0
+            else None
+        ),
+        "adjacent_recombination_mean_absolute_error": float(
+            np.mean(np.abs(adjacent_error))
+        ),
+        "adjacent_recombination_root_mean_square_error": float(
+            np.sqrt(np.mean(adjacent_error * adjacent_error))
+        ),
+        "multipoint_adjacent_recombination_mean_absolute_error": float(
+            np.mean(np.abs(multipoint_adjacent_error))
+        ),
+        "regularized_adjacent_recombination_mean_absolute_error": float(
+            np.mean(np.abs(regularized_adjacent_error))
+        ),
+        "pairwise_adjacent_recombination_mean_absolute_error": float(
+            np.mean(np.abs(pairwise_adjacent_error))
+        ),
+        "representative_position_rmse_cm": float(
+            np.sqrt(np.mean(position_error * position_error))
+        ),
+        "endpoint_truth_span_fraction": (
+            float(endpoint_span / true_span_cm) if true_span_cm > 0.0 else None
+        ),
+    }
 
 
 def inversion_fraction(order: IntArray, truth_index: IntArray) -> float:
@@ -160,15 +384,17 @@ def evaluate_marker_coordinates(
     if not np.all(np.isfinite(reported)):
         raise ValueError("reported_coordinates contain non-finite values")
     membership = truth_equivalence_membership(cross.latent_states)
-    truth_coordinates = np.asarray([
-        np.median(cross.input_to_truth[membership == group])
-        for group in range(int(membership.max()) + 1)
-    ])
+    truth_coordinates = np.asarray(
+        [
+            np.median(cross.input_to_truth[membership == group])
+            for group in range(int(membership.max()) + 1)
+        ]
+    )
     selected_groups = membership[markers]
     groups = np.unique(selected_groups)
-    group_reported = np.asarray([
-        np.median(reported[selected_groups == group]) for group in groups
-    ])
+    group_reported = np.asarray(
+        [np.median(reported[selected_groups == group]) for group in groups]
+    )
     group_truth = truth_coordinates[groups]
 
     discordant = 0
@@ -186,9 +412,7 @@ def evaluate_marker_coordinates(
             else:
                 concordant += 1
     ordered_pairs = discordant + concordant
-    error = (
-        min(discordant, concordant) / ordered_pairs if ordered_pairs else None
-    )
+    error = min(discordant, concordant) / ordered_pairs if ordered_pairs else None
     return {
         "truth_equivalence_bins": int(truth_coordinates.size),
         "framework_truth_bins": int(groups.size),
@@ -243,10 +467,12 @@ def evaluate_marker_intervals(
 
     truth_membership = truth_equivalence_membership(cross.latent_states)
     truth_bin_count = int(truth_membership.max()) + 1
-    truth_coordinates = np.asarray([
-        np.median(cross.input_to_truth[truth_membership == group])
-        for group in range(truth_bin_count)
-    ])
+    truth_coordinates = np.asarray(
+        [
+            np.median(cross.input_to_truth[truth_membership == group])
+            for group in range(truth_bin_count)
+        ]
+    )
     representative_truth = truth_membership[representatives]
 
     unique_framework_truth: list[int] = []
@@ -291,10 +517,12 @@ def evaluate_marker_intervals(
         high_rank = max(bound[1] for bound in class_bounds)
         bounded += 1
         width_sum += high_rank - low_rank
-        low_truth, high_truth = sorted((
-            truth_coordinates[unique_framework_truth[low_rank]],
-            truth_coordinates[unique_framework_truth[high_rank]],
-        ))
+        low_truth, high_truth = sorted(
+            (
+                truth_coordinates[unique_framework_truth[low_rank]],
+                truth_coordinates[unique_framework_truth[high_rank]],
+            )
+        )
         covered += int(low_truth <= truth_coordinates[truth_group] <= high_truth)
 
     nonframework = truth_bin_count - len(unique_framework_truth)
@@ -349,10 +577,12 @@ def evaluate_marker_partial_order(
     right = np.asarray(interval_right, dtype=np.int64)
     truth_membership = truth_equivalence_membership(cross.latent_states)
     truth_bin_count = int(truth_membership.max()) + 1
-    truth_coordinates = np.asarray([
-        np.median(cross.input_to_truth[truth_membership == group])
-        for group in range(truth_bin_count)
-    ])
+    truth_coordinates = np.asarray(
+        [
+            np.median(cross.input_to_truth[truth_membership == group])
+            for group in range(truth_bin_count)
+        ]
+    )
     framework_lookup = {
         int(method_bin): slot for slot, method_bin in enumerate(framework)
     }
@@ -370,20 +600,12 @@ def evaluate_marker_partial_order(
                 continue
             low_slot = int(left[method_bin])
             high_slot = int(right[method_bin])
-            if (
-                low_slot < -1
-                or high_slot > framework.size
-                or low_slot >= high_slot
-            ):
+            if low_slot < -1 or high_slot > framework.size or low_slot >= high_slot:
                 class_bounds.append((minimum_coordinate, maximum_coordinate))
                 continue
-            low_coordinate = (
-                minimum_coordinate if low_slot < 0 else 2 * low_slot + 1
-            )
+            low_coordinate = minimum_coordinate if low_slot < 0 else 2 * low_slot + 1
             high_coordinate = (
-                maximum_coordinate
-                if high_slot == framework.size
-                else 2 * high_slot - 1
+                maximum_coordinate if high_slot == framework.size else 2 * high_slot - 1
             )
             class_bounds.append((low_coordinate, high_coordinate))
         bounds[truth_group, 0] = min(bound[0] for bound in class_bounds)
@@ -489,17 +711,22 @@ def evaluate_marker_rank_intervals(
         raise ValueError("rank intervals contain invalid bounds")
     membership = truth_equivalence_membership(cross.latent_states)
     truth_bin_count = int(membership.max()) + 1
-    truth_coordinates = np.asarray([
-        np.median(cross.input_to_truth[membership == group])
-        for group in range(truth_bin_count)
-    ])
-    bounds = np.asarray([
-        (
-            int(np.min(left[membership == group])),
-            int(np.max(right[membership == group])),
-        )
-        for group in range(truth_bin_count)
-    ], dtype=np.int64)
+    truth_coordinates = np.asarray(
+        [
+            np.median(cross.input_to_truth[membership == group])
+            for group in range(truth_bin_count)
+        ]
+    )
+    bounds = np.asarray(
+        [
+            (
+                int(np.min(left[membership == group])),
+                int(np.max(right[membership == group])),
+            )
+            for group in range(truth_bin_count)
+        ],
+        dtype=np.int64,
+    )
     concordant = 0
     discordant = 0
     for first in range(truth_bin_count - 1):
@@ -521,9 +748,9 @@ def evaluate_marker_rank_intervals(
     oriented_truth = (
         marker_count - 1 - truth_coordinates if reverse else truth_coordinates
     )
-    covered = int(np.sum(
-        (bounds[:, 0] <= oriented_truth) & (oriented_truth <= bounds[:, 1])
-    ))
+    covered = int(
+        np.sum((bounds[:, 0] <= oriented_truth) & (oriented_truth <= bounds[:, 1]))
+    )
     return {
         "rank_interval_truth_bins": truth_bin_count,
         "rank_interval_total_truth_bin_pairs": total,
@@ -531,9 +758,7 @@ def evaluate_marker_rank_intervals(
         "rank_interval_comparable_pair_fraction": (
             comparable / total if total else None
         ),
-        "rank_interval_minimum_discordant_truth_bin_pairs": min(
-            concordant, discordant
-        ),
+        "rank_interval_minimum_discordant_truth_bin_pairs": min(concordant, discordant),
         "rank_interval_truth_bin_inversion_fraction": (
             min(concordant, discordant) / comparable if comparable else None
         ),
@@ -541,19 +766,24 @@ def evaluate_marker_rank_intervals(
         "rank_interval_truth_bin_coverage": (
             covered / truth_bin_count if truth_bin_count else None
         ),
-        "rank_interval_mean_truth_bin_width": float(np.mean(
-            bounds[:, 1] - bounds[:, 0]
-        )),
+        "rank_interval_mean_truth_bin_width": float(
+            np.mean(bounds[:, 1] - bounds[:, 0])
+        ),
     }
 
 
-def bin_truth_coordinates(result: SoftMapResult, input_to_truth: IntArray) -> FloatArray:
+def bin_truth_coordinates(
+    result: SoftMapResult, input_to_truth: IntArray
+) -> FloatArray:
     """Median truth coordinate of every probabilistic co-segregation bin."""
 
-    return np.asarray([
-        np.median(input_to_truth[result.bins.membership == group])
-        for group in range(result.bins.representatives.size)
-    ], dtype=np.float64)
+    return np.asarray(
+        [
+            np.median(input_to_truth[result.bins.membership == group])
+            for group in range(result.bins.representatives.size)
+        ],
+        dtype=np.float64,
+    )
 
 
 def evaluate_result(result: SoftMapResult, cross: SimulatedCross) -> dict[str, float]:
@@ -588,7 +818,9 @@ def evaluate_result(result: SoftMapResult, cross: SimulatedCross) -> dict[str, f
         "markers": float(cross.probabilities.shape[1]),
         "bins": float(result.bins.representatives.size),
         "framework_markers": float(result.framework.size),
-        "framework_fraction": float(result.framework.size / result.bins.representatives.size),
+        "framework_fraction": float(
+            result.framework.size / result.bins.representatives.size
+        ),
         "representative_inversion_fraction": representative_error,
         "framework_inversion_fraction": framework_error,
         "bounded_intervals": float(bounded),
