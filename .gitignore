@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+site/
+build/
+dist/
+example_output/
+softmap_example.png
+.DS_Store
+
+# Generated simulation inputs and tool outputs. Summaries in benchmark/*.md stay tracked.
+benchmark/
+
+# Local research notes and study runners are not part of the small public package.
+BENCHMARK_SPEC.md
+LITERATURE_REVIEW.md
+METHOD_ROADMAP.md
+STATUS.md
+scripts/

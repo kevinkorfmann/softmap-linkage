@@ -1,0 +1,38 @@
+site_name: SoftMap
+site_description: Confidence-aware linkage mapping from probabilistic inheritance states
+repo_url: https://github.com/kevinkorfmann/softmap-linkage
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: teal
+    accent: amber
+  font:
+    text: Inter
+    code: Roboto Mono
+  features:
+    - navigation.instant
+    - navigation.sections
+    - content.code.copy
+extra_css:
+  - stylesheets/extra.css
+nav:
+  - Home: index.md
+  - Quick start: quickstart.md
+  - Input data: data.md
+  - Plotting: plotting.md
+  - API: api.md
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            members_order: source
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences

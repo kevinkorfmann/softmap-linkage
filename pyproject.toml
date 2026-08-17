@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "softmap-linkage"
+version = "0.1.0"
+description = "Confidence-first linkage mapping from probabilistic genotypes"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.0", "scipy>=1.14"]
+license = "MIT"
+
+[project.urls]
+Repository = "https://github.com/kevinkorfmann/softmap-linkage"
+Documentation = "https://softmap-linkage.readthedocs.io/"
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.9"]
+docs = ["mkdocs-material>=9.5", "mkdocstrings[python]>=0.27", "matplotlib>=3.9"]
+test = ["matplotlib>=3.9", "pytest>=8.0"]
+
+[project.scripts]
+softmap = "softmap.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["softmap*"]

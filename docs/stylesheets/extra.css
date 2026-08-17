@@ -1,0 +1,29 @@
+:root {
+  --md-text-font: "Inter", sans-serif;
+}
+
+body,
+strong,
+b,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.md-typeset,
+.md-typeset strong,
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-header__title,
+.md-tabs__link,
+.md-nav__title,
+.md-nav__link {
+  font-weight: 400 !important;
+}
+
+.md-typeset code {
+  border-radius: 0.25rem;
+}
