@@ -348,6 +348,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#which-data-work-best" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which data work best?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#probability-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -469,6 +480,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#which-data-work-best" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which data work best?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#probability-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -522,6 +544,52 @@
 
 
 <h1 id="input-data">Input data</h1>
+<h2 id="which-data-work-best">Which data work best?</h2>
+<p>SoftMap works best when each marker has two possible, phased parental-origin states.
+This is most natural for doubled-haploid, backcross, and phased RIL populations.</p>
+<table>
+<thead>
+<tr>
+<th>Data feature</th>
+<th>Better input</th>
+<th>Why it helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cross design</td>
+<td>Doubled haploid, backcross, or phased RIL</td>
+<td>Each allele can be assigned to one of two parental states.</td>
+</tr>
+<tr>
+<td>Genotypes</td>
+<td>Probabilities derived from read or genotype likelihoods</td>
+<td>Uncertain observations contribute less without being discarded or forced into a hard call.</td>
+</tr>
+<tr>
+<td>Offspring</td>
+<td>More informative offspring with independent crossover histories</td>
+<td>Map resolution comes from observed recombination events. More offspring usually help more than adding nearly identical markers.</td>
+</tr>
+<tr>
+<td>Markers</td>
+<td>Well-distributed, quality-controlled markers with little missing data</td>
+<td>Errors and missingness can resemble false crossovers. Co-segregating markers are kept together as bins.</td>
+</tr>
+<tr>
+<td>Linkage groups</td>
+<td>One established linkage group per run</td>
+<td>SoftMap orders markers but does not currently discover linkage groups.</td>
+</tr>
+</tbody>
+</table>
+<p>Values near zero or one should mean strong evidence for the two parental-origin
+states. A value of 0.5 means that the binary state is unknown; it does not generally
+mean “heterozygous.”</p>
+<p>Unphased F2 and full-sib populations need an additional phase-aware model before
+they are suitable for biological inference. The Rahnamae et al. (2026) F2 example
+uses heterozygous calls as 0.5 to test loading, ordering, and plotting. It is a
+software demonstration, not a replacement F2 linkage analysis.</p>
 <h2 id="probability-matrix">Probability matrix</h2>
 <p>SoftMap expects an offspring-by-marker matrix. Values near zero or one represent
 confident inheritance states. A value of 0.5 represents no information.</p>
