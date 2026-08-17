@@ -72,3 +72,35 @@ Both panels contain the same probabilities and offspring. Only the marker column
 change, making the ordering step visible without changing the underlying data.
 
 ![Marker order before and after](assets/marker_order_before_after.png)
+
+## Physical position before and after
+
+Fit one map per chromosome, then place each before/after pair in a 4×4 figure:
+
+```python
+chromosome_maps = [
+    softmap.fit(
+        softmap.contemporary_hybridization(
+            chromosome=chromosome,
+            markers=80,
+        ).shuffled(seed=10 + chromosome),
+        bootstrap=10,
+        confidence=0.8,
+        seed=20 + chromosome,
+        bin_threshold=0.005,
+    )
+    for chromosome in range(1, 9)
+]
+
+softmap.plot_physical_order_grid(
+    chromosome_maps,
+    "physical_order_before_after_grid.png",
+)
+```
+
+Physical position is compared with shuffled input rank and inferred map rank.
+Chromosome orientation is arbitrary and is aligned to physical position for display.
+The vertical axes are labeled as ranks because SoftMap does not estimate centimorgan
+distances.
+
+![Physical and genetic-map order before and after](assets/physical_order_before_after_grid.png)

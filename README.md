@@ -6,6 +6,8 @@ supported framework instead of forcing every marker into a precise order.
 
 [Documentation](https://kevinkorfmann.github.io/softmap-linkage/)
 
+![Physical and genetic-map order before and after](docs/assets/physical_order_before_after_grid.png)
+
 ![Marker order before and after](docs/assets/marker_order_before_after.png)
 
 ## Quick start

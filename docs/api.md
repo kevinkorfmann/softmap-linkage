@@ -21,3 +21,5 @@
 ::: softmap.plotting.plot_physical_vs_genetic
 
 ::: softmap.plotting.plot_marker_order
+
+::: softmap.plotting.plot_physical_order_grid

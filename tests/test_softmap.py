@@ -57,6 +57,24 @@ class SoftMapTests(unittest.TestCase):
         self.assertEqual(mapping.summary()["markers"], 20)
         self.assertEqual(len(mapping.ordered_markers), 20)
 
+        physical_data = softmap.LinkageData(
+            data.probabilities,
+            data.marker_names,
+            data.reference_positions,
+            "Chromosome 1",
+            np.linspace(0.0, 10.0, 20),
+        ).shuffled(seed=3)
+        physical_map = softmap.fit(
+            physical_data, bootstrap=3, confidence=0.8, seed=8
+        )
+        with TemporaryDirectory() as directory:
+            destination = Path(directory) / "physical_grid.png"
+            figure = softmap.plot_physical_order_grid(
+                [physical_map, physical_map], destination
+            )
+            self.assertTrue(destination.exists())
+            self.assertEqual(len(figure.axes), 4)
+
     def test_published_data_loader_accepts_local_source(self):
         text = (
             "ID,,,a,b,c\n"

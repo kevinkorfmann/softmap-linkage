@@ -20,6 +20,7 @@ class LinkageData:
     marker_names: tuple[str, ...]
     reference_positions: NDArray[np.float64] | None = None
     label: str | None = None
+    physical_positions: NDArray[np.float64] | None = None
 
     def __post_init__(self) -> None:
         probabilities = np.asarray(self.probabilities, dtype=np.float64)
@@ -32,6 +33,11 @@ class LinkageData:
             if positions.shape != (probabilities.shape[1],):
                 raise ValueError("reference_positions must contain one value per marker")
             object.__setattr__(self, "reference_positions", positions)
+        if self.physical_positions is not None:
+            physical = np.asarray(self.physical_positions, dtype=np.float64)
+            if physical.shape != (probabilities.shape[1],):
+                raise ValueError("physical_positions must contain one value per marker")
+            object.__setattr__(self, "physical_positions", physical)
         object.__setattr__(self, "probabilities", probabilities)
 
     def shuffled(self, seed: int | None = 1) -> "LinkageData":
@@ -43,12 +49,18 @@ class LinkageData:
             if self.reference_positions is not None
             else None
         )
+        physical = (
+            self.physical_positions[order]
+            if self.physical_positions is not None
+            else None
+        )
         label = f"{self.label}, shuffled input" if self.label else "Shuffled input"
         return LinkageData(
             self.probabilities[:, order],
             tuple(self.marker_names[int(index)] for index in order),
             reference,
             label,
+            physical,
         )
 
 

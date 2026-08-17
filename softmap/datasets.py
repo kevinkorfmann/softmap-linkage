@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import io
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -17,6 +18,18 @@ CONTEMPORARY_HYBRIDIZATION_URL = (
     "https://raw.githubusercontent.com/nedarahnama/Contemporary_hybridization/"
     "master/04_genetic_map/map6j_742_2082_gen.csv"
 )
+
+
+@lru_cache(maxsize=4)
+def _read_url(source: str) -> str:
+    with urlopen(source, timeout=60) as response:
+        return response.read().decode("utf-8")
+
+
+def _read_source(source: str | Path) -> str:
+    if str(source).startswith(("http://", "https://")):
+        return _read_url(str(source))
+    return Path(source).read_text(encoding="utf-8")
 
 
 @dataclass(frozen=True)
@@ -76,11 +89,7 @@ def contemporary_hybridization(
 
     if markers < 2:
         raise ValueError("markers must be at least two")
-    if str(source).startswith(("http://", "https://")):
-        with urlopen(str(source), timeout=60) as response:
-            text = response.read().decode("utf-8")
-    else:
-        text = Path(source).read_text(encoding="utf-8")
+    text = _read_source(source)
 
     reader = csv.reader(io.StringIO(text))
     next(reader, None)
@@ -96,11 +105,18 @@ def contemporary_hybridization(
         [[calls.get(value, 0.5) for value in row[3:]] for row in rows],
         dtype=np.float64,
     ).T
+    try:
+        physical_positions = np.asarray(
+            [float(row[0].rsplit("_", 1)[1]) for row in rows]
+        )
+    except (IndexError, ValueError):
+        physical_positions = None
     return LinkageData(
         probabilities,
         tuple(row[0] for row in rows),
         np.asarray([float(row[2]) for row in rows]),
         f"Rahnamae et al., chromosome {chromosome}",
+        physical_positions,
     )
 
 
@@ -109,11 +125,7 @@ def contemporary_map_positions(
 ) -> MapPositions:
     """Load published physical and genetic coordinates for all eight chromosomes."""
 
-    if str(source).startswith(("http://", "https://")):
-        with urlopen(str(source), timeout=60) as response:
-            text = response.read().decode("utf-8")
-    else:
-        text = Path(source).read_text(encoding="utf-8")
+    text = _read_source(source)
 
     reader = csv.reader(io.StringIO(text))
     next(reader, None)

@@ -17,9 +17,15 @@ mapping.plot("map.png")
 SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
 framework of markers whose pairwise order reaches the requested support.
 
+![Physical and genetic-map order before and after](assets/physical_order_before_after_grid.png)
+
+The top figure compares physical position with shuffled input rank and inferred
+genetic-map rank for all eight chromosomes in a 4×4 layout. SoftMap estimates order
+rather than centimorgan distances, so the vertical axes are marker ranks.
+
 ![Marker order before and after](assets/marker_order_before_after.png)
 
-The flagship figure shows a reproducibly shuffled chromosome 1 from the Rahnamae
+The marker-matrix figure shows a reproducibly shuffled chromosome 1 from the Rahnamae
 et al. dataset before and after marker ordering. Both panels contain the same
 probabilities; only the marker columns change. See the
 [plotting guide](plotting.md) for the conversion and interpretation.

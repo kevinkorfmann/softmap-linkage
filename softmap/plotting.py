@@ -268,3 +268,112 @@ def plot_marker_order(
         destination.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(destination, bbox_inches="tight")
     return fig
+
+
+def plot_physical_order_grid(
+    mappings: list["Map"] | tuple["Map", ...],
+    path: str | Path | None = None,
+    *,
+    colors: tuple[str, str, str] = PHYSICAL_GENETIC_COLORS,
+) -> "Figure":
+    """Plot physical position against marker rank before and after ordering."""
+
+    if not mappings:
+        raise ValueError("at least one fitted map is required")
+    if len(mappings) > 8:
+        raise ValueError("the 4 by 4 layout supports at most eight fitted maps")
+    if any(mapping.data.physical_positions is None for mapping in mappings):
+        raise ValueError("every fitted map must include physical positions")
+    try:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
+    except ImportError as error:
+        raise ImportError(
+            'Plotting requires matplotlib. Install with pip install "softmap-linkage[plot]".'
+        ) from error
+
+    mpl.rcParams.update({
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+        "font.weight": "normal",
+        "axes.labelweight": "normal",
+        "axes.titleweight": "normal",
+        "axes.titlesize": 8,
+        "axes.labelsize": 7,
+        "xtick.labelsize": 6,
+        "ytick.labelsize": 6,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "figure.dpi": 140,
+        "savefig.dpi": 300,
+    })
+    cmap = LinearSegmentedColormap.from_list("softmap_physical_order", colors)
+    rows = int(np.ceil(len(mappings) / 2))
+    fig, axes_array = plt.subplots(
+        rows,
+        4,
+        figsize=(8.2, 2.0 * rows + 0.45),
+        constrained_layout=True,
+        squeeze=False,
+    )
+    axes = axes_array.ravel()
+    for index, mapping in enumerate(mappings):
+        before_axis = axes[index * 2]
+        after_axis = axes[index * 2 + 1]
+        physical = np.asarray(mapping.data.physical_positions)
+        before_rank = np.arange(physical.size, dtype=np.float64)
+        after_rank = np.empty(physical.size, dtype=np.float64)
+        after_rank[mapping.result.order] = np.arange(physical.size, dtype=np.float64)
+        before_r = float(np.corrcoef(physical, before_rank)[0, 1])
+        after_r = float(np.corrcoef(physical, after_rank)[0, 1])
+        if after_r < 0:
+            after_rank = after_rank.max() - after_rank
+            after_r = -after_r
+        scale = np.ptp(physical)
+        color_values = (
+            (physical - physical.min()) / scale
+            if scale > 0
+            else np.zeros_like(physical)
+        )
+        label = str(index + 1)
+        if mapping.data.label and "chromosome " in mapping.data.label:
+            label = mapping.data.label.split("chromosome ", 1)[1].split(",", 1)[0]
+        for state, axis, ranks, correlation in (
+            ("before", before_axis, before_rank, abs(before_r)),
+            ("after", after_axis, after_rank, after_r),
+        ):
+            axis.scatter(
+                physical,
+                ranks,
+                c=color_values,
+                cmap=cmap,
+                vmin=0,
+                vmax=1,
+                s=12,
+                alpha=0.88,
+                edgecolor="white",
+                linewidth=0.2,
+                rasterized=True,
+            )
+            axis.set_title(f"Chr {label} · {state} · r = {correlation:.2f}")
+            axis.set_xlabel("Physical position (Mb)")
+            axis.set_ylabel("Marker rank")
+            axis.grid(color="#eeeeee", linewidth=0.45)
+        physical_order = np.argsort(physical, kind="stable")
+        after_axis.plot(
+            physical[physical_order],
+            after_rank[physical_order],
+            color=colors[1],
+            alpha=0.38,
+            linewidth=0.6,
+            zorder=0,
+        )
+    for axis in axes[len(mappings) * 2:]:
+        axis.set_visible(False)
+    fig.suptitle("Physical position vs genetic-map order, before and after", fontweight="normal")
+    if path is not None:
+        destination = Path(path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(destination, bbox_inches="tight")
+    return fig
