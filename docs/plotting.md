@@ -20,6 +20,7 @@ The published example is loaded directly from the source repository:
 import softmap
 
 data = softmap.contemporary_hybridization(chromosome=1, markers=100)
+data = data.shuffled(seed=11)
 mapping = softmap.fit(
     data,
     bootstrap=20,
@@ -56,3 +57,18 @@ The light-to-dark marker gradient follows physical position and uses `#fde0dd`,
 `#fa9fb5`, and `#c51b8a`.
 
 ![Physical and genetic map](assets/physical_vs_genetic_map.png)
+
+## Marker order before and after
+
+Use the same fitted map to compare the original marker columns with the inferred
+order:
+
+```python
+mapping.plot_marker_order("marker_order_before_after.png")
+```
+
+The flagship example first shuffles the published marker columns with a fixed seed.
+Both panels contain the same probabilities and offspring. Only the marker columns
+change, making the ordering step visible without changing the underlying data.
+
+![Marker order before and after](assets/marker_order_before_after.png)

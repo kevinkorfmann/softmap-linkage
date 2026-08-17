@@ -23,7 +23,7 @@ from .datasets import (
     contemporary_map_positions,
     demo,
 )
-from .plotting import plot_physical_vs_genetic
+from .plotting import plot_marker_order, plot_physical_vs_genetic
 
 __all__ = [
     "fit",
@@ -31,6 +31,7 @@ __all__ = [
     "contemporary_hybridization",
     "contemporary_map_positions",
     "plot_physical_vs_genetic",
+    "plot_marker_order",
     "LinkageData",
     "Map",
     "MapPositions",

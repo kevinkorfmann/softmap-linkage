@@ -192,3 +192,79 @@ def plot_physical_vs_genetic(
         destination.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(destination, bbox_inches="tight")
     return fig
+
+
+def plot_marker_order(
+    mapping: "Map",
+    path: str | Path | None = None,
+    *,
+    colors: tuple[str, str, str] = PHYSICAL_GENETIC_COLORS,
+) -> "Figure":
+    """Show the probability matrix before and after marker ordering."""
+
+    try:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
+    except ImportError as error:
+        raise ImportError(
+            'Plotting requires matplotlib. Install with pip install "softmap-linkage[plot]".'
+        ) from error
+
+    mpl.rcParams.update({
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+        "font.weight": "normal",
+        "axes.labelweight": "normal",
+        "axes.titleweight": "normal",
+        "figure.dpi": 140,
+        "savefig.dpi": 300,
+    })
+    cmap = LinearSegmentedColormap.from_list("softmap_marker_order", colors)
+    probabilities = mapping.data.probabilities
+    if probabilities.shape[0] > 180:
+        offspring = np.linspace(0, probabilities.shape[0] - 1, 180).round().astype(int)
+        probabilities = probabilities[offspring]
+    before = probabilities
+    after = probabilities[:, mapping.result.order]
+
+    fig, axes = plt.subplots(
+        1, 2, figsize=(8.2, 3.65), sharex=True, sharey=True, constrained_layout=True
+    )
+    images = []
+    for label, title, matrix, axis in zip(
+        ("a", "b"),
+        ("Before: input marker order", "After: inferred marker order"),
+        (before, after),
+        axes,
+    ):
+        image = axis.imshow(
+            matrix,
+            aspect="auto",
+            interpolation="nearest",
+            cmap=cmap,
+            vmin=0,
+            vmax=1,
+            rasterized=True,
+        )
+        images.append(image)
+        axis.set_title(title)
+        axis.set_xlabel("Marker rank")
+        axis.text(
+            -0.12,
+            1.04,
+            label,
+            transform=axis.transAxes,
+            va="bottom",
+            fontweight="normal",
+        )
+    axes[0].set_ylabel("Offspring")
+    colorbar = fig.colorbar(images[-1], ax=axes, fraction=0.03, pad=0.025)
+    colorbar.set_label("State 1 probability")
+    if mapping.data.label:
+        fig.suptitle(mapping.data.label, fontweight="normal")
+    if path is not None:
+        destination = Path(path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(destination, bbox_inches="tight")
+    return fig

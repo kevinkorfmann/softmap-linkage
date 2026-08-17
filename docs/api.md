@@ -19,3 +19,5 @@
 ## Physical and genetic plotting
 
 ::: softmap.plotting.plot_physical_vs_genetic
+
+::: softmap.plotting.plot_marker_order

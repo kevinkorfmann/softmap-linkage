@@ -34,6 +34,23 @@ class LinkageData:
             object.__setattr__(self, "reference_positions", positions)
         object.__setattr__(self, "probabilities", probabilities)
 
+    def shuffled(self, seed: int | None = 1) -> "LinkageData":
+        """Return a copy with marker columns in a reproducibly shuffled order."""
+
+        order = np.random.default_rng(seed).permutation(self.probabilities.shape[1])
+        reference = (
+            self.reference_positions[order]
+            if self.reference_positions is not None
+            else None
+        )
+        label = f"{self.label}, shuffled input" if self.label else "Shuffled input"
+        return LinkageData(
+            self.probabilities[:, order],
+            tuple(self.marker_names[int(index)] for index in order),
+            reference,
+            label,
+        )
+
 
 @dataclass(frozen=True)
 class Map:
@@ -73,6 +90,13 @@ class Map:
         from .plotting import plot_map
 
         return plot_map(self, path=path)
+
+    def plot_marker_order(self, path: str | Path | None = None):
+        """Compare the input marker order with the fitted marker order."""
+
+        from .plotting import plot_marker_order
+
+        return plot_marker_order(self, path=path)
 
 
 def fit(

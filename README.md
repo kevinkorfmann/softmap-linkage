@@ -6,6 +6,8 @@ supported framework instead of forcing every marker into a precise order.
 
 [Documentation](https://kevinkorfmann.github.io/softmap-linkage/)
 
+![Marker order before and after](docs/assets/marker_order_before_after.png)
+
 ## Quick start
 
 Install the package with plotting support:

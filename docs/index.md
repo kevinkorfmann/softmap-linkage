@@ -17,9 +17,11 @@ mapping.plot("map.png")
 SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
 framework of markers whose pairwise order reaches the requested support.
 
-![SoftMap overview](assets/contemporary_hybridization.png)
+![Marker order before and after](assets/marker_order_before_after.png)
 
-The figure uses chromosome 1 from the Rahnamae et al. dataset. See the
+The flagship figure shows a reproducibly shuffled chromosome 1 from the Rahnamae
+et al. dataset before and after marker ordering. Both panels contain the same
+probabilities; only the marker columns change. See the
 [plotting guide](plotting.md) for the conversion and interpretation.
 
 ## Scope

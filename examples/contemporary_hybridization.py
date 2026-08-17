@@ -7,7 +7,7 @@ import softmap
 output = Path("example_output")
 output.mkdir(exist_ok=True)
 
-data = softmap.contemporary_hybridization(chromosome=1, markers=100)
+data = softmap.contemporary_hybridization(chromosome=1, markers=100).shuffled(seed=11)
 mapping = softmap.fit(
     data,
     bootstrap=20,
@@ -18,6 +18,8 @@ mapping = softmap.fit(
 print(mapping.summary())
 mapping.plot(output / "contemporary_hybridization.png")
 mapping.plot(output / "contemporary_hybridization.svg")
+mapping.plot_marker_order(output / "marker_order_before_after.png")
+mapping.plot_marker_order(output / "marker_order_before_after.svg")
 
 positions = softmap.contemporary_map_positions()
 softmap.plot_physical_vs_genetic(

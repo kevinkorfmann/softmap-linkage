@@ -50,6 +50,9 @@ from softmap.cli import main as cli_main
 class SoftMapTests(unittest.TestCase):
     def test_small_public_api_returns_summary_and_order(self):
         data = softmap.demo(offspring=30, markers=20, seed=5)
+        shuffled = data.shuffled(seed=2)
+        self.assertNotEqual(shuffled.marker_names, data.marker_names)
+        self.assertEqual(shuffled.probabilities.shape, data.probabilities.shape)
         mapping = softmap.fit(data, bootstrap=3, confidence=0.8, seed=8)
         self.assertEqual(mapping.summary()["markers"], 20)
         self.assertEqual(len(mapping.ordered_markers), 20)
