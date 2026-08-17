@@ -17,14 +17,23 @@ from .core import (
     pairwise_recombination_likelihood,
     prune_framework_likelihood,
 )
-from .datasets import contemporary_hybridization, demo
+from .datasets import (
+    MapPositions,
+    contemporary_hybridization,
+    contemporary_map_positions,
+    demo,
+)
+from .plotting import plot_physical_vs_genetic
 
 __all__ = [
     "fit",
     "demo",
     "contemporary_hybridization",
+    "contemporary_map_positions",
+    "plot_physical_vs_genetic",
     "LinkageData",
     "Map",
+    "MapPositions",
     "audit_scaffold_likelihood",
     "HierarchicalSoftMapResult",
     "SoftMapResult",

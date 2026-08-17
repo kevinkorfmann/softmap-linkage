@@ -48,7 +48,7 @@ python examples/contemporary_hybridization.py
 ```
 
 The example downloads the source table directly, samples 100 markers, fits the map,
-and writes PNG and SVG figures. Heterozygous and missing F2 calls are represented as
+and writes linkage-order and physical-versus-genetic figures. Heterozygous and missing F2 calls are represented as
 uninformative probabilities, so this is a software demonstration rather than a
 replacement analysis of that cross.
 

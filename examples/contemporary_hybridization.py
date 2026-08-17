@@ -18,3 +18,11 @@ mapping = softmap.fit(
 print(mapping.summary())
 mapping.plot(output / "contemporary_hybridization.png")
 mapping.plot(output / "contemporary_hybridization.svg")
+
+positions = softmap.contemporary_map_positions()
+softmap.plot_physical_vs_genetic(
+    positions, output / "physical_vs_genetic_map.png"
+)
+softmap.plot_physical_vs_genetic(
+    positions, output / "physical_vs_genetic_map.svg"
+)

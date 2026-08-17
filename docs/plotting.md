@@ -38,3 +38,21 @@ does not perform full F2 phase inference and should not be treated as a revised
 biological map.
 
 Source: [Rahnamae et al., Contemporary_hybridization](https://github.com/nedarahnama/Contemporary_hybridization)
+
+## Physical and genetic map
+
+The source table also contains physical positions in marker names and published
+genetic positions in centimorgans. Load and plot all eight chromosomes with:
+
+```python
+positions = softmap.contemporary_map_positions()
+softmap.plot_physical_vs_genetic(
+    positions,
+    "physical_vs_genetic_map.png",
+)
+```
+
+The light-to-dark marker gradient follows physical position and uses `#fde0dd`,
+`#fa9fb5`, and `#c51b8a`.
+
+![Physical and genetic map](assets/physical_vs_genetic_map.png)

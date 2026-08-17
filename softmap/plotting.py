@@ -10,6 +10,10 @@ import numpy as np
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
     from .api import Map
+    from .datasets import MapPositions
+
+
+PHYSICAL_GENETIC_COLORS = ("#fde0dd", "#fa9fb5", "#c51b8a")
 
 
 def plot_map(mapping: "Map", path: str | Path | None = None) -> "Figure":
@@ -100,6 +104,89 @@ def plot_map(mapping: "Map", path: str | Path | None = None) -> "Figure":
 
     if mapping.data.label:
         fig.suptitle(mapping.data.label, fontweight="normal")
+    if path is not None:
+        destination = Path(path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(destination, bbox_inches="tight")
+    return fig
+
+
+def plot_physical_vs_genetic(
+    positions: "MapPositions",
+    path: str | Path | None = None,
+    *,
+    colors: tuple[str, str, str] = PHYSICAL_GENETIC_COLORS,
+) -> "Figure":
+    """Plot physical position against genetic position for every chromosome."""
+
+    try:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
+    except ImportError as error:
+        raise ImportError(
+            'Plotting requires matplotlib. Install with pip install "softmap-linkage[plot]".'
+        ) from error
+
+    mpl.rcParams.update({
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+        "font.weight": "normal",
+        "axes.labelweight": "normal",
+        "axes.titleweight": "normal",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "figure.dpi": 140,
+        "savefig.dpi": 300,
+    })
+    cmap = LinearSegmentedColormap.from_list("softmap_physical_genetic", colors)
+    chromosomes = np.unique(positions.chromosomes)
+    columns = 4 if chromosomes.size > 4 else chromosomes.size
+    rows = int(np.ceil(chromosomes.size / columns))
+    fig, axes_array = plt.subplots(
+        rows,
+        columns,
+        figsize=(10.2, 5.4 if rows == 2 else 3.0 * rows),
+        sharex=False,
+        sharey=False,
+        constrained_layout=True,
+        squeeze=False,
+    )
+    axes = axes_array.ravel()
+    for axis, chromosome in zip(axes, chromosomes):
+        selected = positions.chromosomes == chromosome
+        physical = positions.physical_mb[selected]
+        genetic = positions.genetic_cm[selected]
+        order = np.argsort(physical, kind="stable")
+        physical = physical[order]
+        genetic = genetic[order]
+        scale = np.ptp(physical)
+        color_values = (
+            (physical - physical.min()) / scale if scale > 0 else np.zeros_like(physical)
+        )
+        axis.plot(physical, genetic, color=colors[1], alpha=0.34, linewidth=0.65)
+        axis.scatter(
+            physical,
+            genetic,
+            c=color_values,
+            cmap=cmap,
+            vmin=0,
+            vmax=1,
+            s=17,
+            alpha=0.88,
+            edgecolor="white",
+            linewidth=0.25,
+            rasterized=True,
+        )
+        correlation = float(np.corrcoef(physical, genetic)[0, 1])
+        axis.set_title(f"Chromosome {int(chromosome)}  r = {correlation:.2f}")
+        axis.set_xlabel("Physical position (Mb)")
+        axis.set_ylabel("Genetic position (cM)")
+        axis.grid(color="#eeeeee", linewidth=0.55)
+    for axis in axes[chromosomes.size:]:
+        axis.set_visible(False)
+    if positions.label:
+        fig.suptitle(positions.label, fontweight="normal")
     if path is not None:
         destination = Path(path)
         destination.parent.mkdir(parents=True, exist_ok=True)

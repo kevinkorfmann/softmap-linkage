@@ -73,6 +73,25 @@ class SoftMapTests(unittest.TestCase):
         )
         np.testing.assert_allclose(data.reference_positions, [0.0, 1.5])
 
+    def test_physical_map_loader_and_plot(self):
+        text = (
+            "ID,,,a,b\n"
+            "chr1_1_0.5,1,0.0,NN,SS\n"
+            "chr1_1_2.5,1,3.0,SS,NN\n"
+            "chr2_2_1.0,2,0.0,NN,SS\n"
+            "chr2_2_3.0,2,4.0,SS,NN\n"
+        )
+        with TemporaryDirectory() as directory:
+            source = Path(directory) / "map.csv"
+            source.write_text(text)
+            positions = softmap.contemporary_map_positions(source=source)
+            destination = Path(directory) / "physical_genetic.png"
+            figure = softmap.plot_physical_vs_genetic(positions, destination)
+            self.assertTrue(destination.exists())
+            self.assertEqual(len(figure.axes), 2)
+        np.testing.assert_allclose(positions.physical_mb, [0.5, 2.5, 1.0, 3.0])
+        np.testing.assert_allclose(positions.genetic_cm, [0.0, 3.0, 0.0, 4.0])
+
     def test_simulator_retains_read_counts_for_raw_data_comparators(self):
         cross = simulate_backcross(
             n_offspring=12,

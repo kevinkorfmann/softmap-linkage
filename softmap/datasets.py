@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+from dataclasses import dataclass
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -16,6 +17,30 @@ CONTEMPORARY_HYBRIDIZATION_URL = (
     "https://raw.githubusercontent.com/nedarahnama/Contemporary_hybridization/"
     "master/04_genetic_map/map6j_742_2082_gen.csv"
 )
+
+
+@dataclass(frozen=True)
+class MapPositions:
+    """Physical and genetic coordinates for markers on multiple chromosomes."""
+
+    marker_names: tuple[str, ...]
+    chromosomes: np.ndarray
+    physical_mb: np.ndarray
+    genetic_cm: np.ndarray
+    label: str | None = None
+
+    def __post_init__(self) -> None:
+        marker_count = len(self.marker_names)
+        chromosomes = np.asarray(self.chromosomes, dtype=np.int64)
+        physical = np.asarray(self.physical_mb, dtype=np.float64)
+        genetic = np.asarray(self.genetic_cm, dtype=np.float64)
+        if any(values.shape != (marker_count,) for values in (chromosomes, physical, genetic)):
+            raise ValueError("coordinate arrays must contain one value per marker")
+        if not np.all(np.isfinite(physical)) or not np.all(np.isfinite(genetic)):
+            raise ValueError("map coordinates must be finite")
+        object.__setattr__(self, "chromosomes", chromosomes)
+        object.__setattr__(self, "physical_mb", physical)
+        object.__setattr__(self, "genetic_cm", genetic)
 
 
 def demo(*, offspring: int = 80, markers: int = 60, seed: int = 4) -> LinkageData:
@@ -76,4 +101,29 @@ def contemporary_hybridization(
         tuple(row[0] for row in rows),
         np.asarray([float(row[2]) for row in rows]),
         f"Rahnamae et al., chromosome {chromosome}",
+    )
+
+
+def contemporary_map_positions(
+    *, source: str | Path = CONTEMPORARY_HYBRIDIZATION_URL
+) -> MapPositions:
+    """Load published physical and genetic coordinates for all eight chromosomes."""
+
+    if str(source).startswith(("http://", "https://")):
+        with urlopen(str(source), timeout=60) as response:
+            text = response.read().decode("utf-8")
+    else:
+        text = Path(source).read_text(encoding="utf-8")
+
+    reader = csv.reader(io.StringIO(text))
+    next(reader, None)
+    rows = [row for row in reader if len(row) >= 3]
+    if not rows:
+        raise ValueError("no map positions were found")
+    return MapPositions(
+        tuple(row[0] for row in rows),
+        np.asarray([int(row[1]) for row in rows]),
+        np.asarray([float(row[0].rsplit("_", 1)[1]) for row in rows]),
+        np.asarray([float(row[2]) for row in rows]),
+        "Rahnamae et al. physical and genetic map",
     )

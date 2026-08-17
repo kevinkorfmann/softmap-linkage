@@ -13,3 +13,9 @@
 ::: softmap.datasets.demo
 
 ::: softmap.datasets.contemporary_hybridization
+
+::: softmap.datasets.contemporary_map_positions
+
+## Physical and genetic plotting
+
+::: softmap.plotting.plot_physical_vs_genetic
