@@ -375,6 +375,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#before-you-start-key-terms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start: key terms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-check-that-your-data-are-suitable" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -710,6 +721,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#before-you-start-key-terms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start: key terms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-check-that-your-data-are-suitable" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -932,6 +954,67 @@ from your own data.</p>
 not discover linkage groups or estimate centimorgan distances. Its input is a
 matrix of phased, binary parental-origin probabilities.</p>
 </div>
+<h2 id="before-you-start-key-terms">Before you start: key terms</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-language meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sample</td>
+<td>One named individual or line, usually represented by one column in a VCF.</td>
+</tr>
+<tr>
+<td>Parent</td>
+<td>One of the two original samples whose alleles define the two inheritance states.</td>
+</tr>
+<tr>
+<td>Offspring</td>
+<td>The progeny samples used to observe recombination and build the map. Parent samples are not offspring.</td>
+</tr>
+<tr>
+<td>Marker</td>
+<td>A variable genomic site, usually a SNP, whose inheritance is followed across offspring.</td>
+</tr>
+<tr>
+<td>Linkage group</td>
+<td>A set of markers inherited together; this often corresponds to one chromosome. SoftMap expects this grouping to be known already.</td>
+</tr>
+<tr>
+<td>Recurrent parent</td>
+<td>In a backcross, the parent to which offspring were crossed back and whose genetic background is intended to be retained.</td>
+</tr>
+<tr>
+<td>Donor parent</td>
+<td>The other backcross parent, which contributed the alternative allele or trait.</td>
+</tr>
+<tr>
+<td>Phase</td>
+<td>A consistent assignment of alleles to parent 1 or parent 2 across markers.</td>
+</tr>
+<tr>
+<td>Bin</td>
+<td>Markers that SoftMap cannot order relative to one another because they show the same inheritance pattern in the offspring.</td>
+</tr>
+<tr>
+<td>Bootstrap support</td>
+<td>How often an ordering relationship reappears after resampling the offspring.</td>
+</tr>
+<tr>
+<td>Framework</td>
+<td>The subset of markers whose relative order reaches the chosen bootstrap-support threshold.</td>
+</tr>
+</tbody>
+</table>
+<p>When code shows <code>parents=("BC_PARENT", "DONOR_PARENT")</code>, the strings are
+placeholders for <strong>exact sample IDs in your VCF header</strong>. For example, a header
+ending in <code>FORMAT RP01 DP01 child_01 child_02</code> requires
+<code>parents=("RP01", "DP01")</code>. In a backcross the order matters: recurrent parent
+first, donor parent second. SoftMap automatically excludes those two samples from
+the offspring rows.</p>
 <h2 id="1-check-that-your-data-are-suitable">1. Check that your data are suitable</h2>
 <p>Use SoftMap when all of the following are true:</p>
 <ul>
