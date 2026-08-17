@@ -3,7 +3,9 @@
 ## Which data work best?
 
 SoftMap works best when each marker has two possible, phased parental-origin states.
-This is most natural for doubled-haploid, backcross, and phased RIL populations.
+This is most natural for doubled-haploid, backcross, and phased recombinant inbred
+line (RIL) populations. An RIL is a nearly homozygous line that retains a stable
+mosaic of the two genomes from an original parental cross.
 
 | Data feature | Better input | Why it helps |
 | --- | --- | --- |

@@ -35,7 +35,8 @@ mapping.plot("map.png")
 ```
 
 The input must contain one linkage group of passing biallelic SNPs. Use
-`cross_design="ril"` or `"doubled_haploid"` for those designs. See the
+`cross_design="ril"` for a recombinant inbred line population or
+`"doubled_haploid"` for a doubled-haploid population. See the
 [API reference](api.md#variant-file-input) for sample selection, conversion rules,
 and every output field.
 

@@ -2,10 +2,11 @@
 
 SoftMap is for researchers who already know which markers belong to one linkage
 group and need to determine their order from uncertain genotype data. It converts
-phased, two-state data from doubled-haploid, backcross, or RIL populations into a
-complete marker order, co-segregation bins, and a confidence-supported framework
-with placement uncertainty. It does not discover linkage groups, infer phase for
-general F2 or full-sib crosses, or estimate centimorgan distances.
+phased, two-state data from doubled-haploid, backcross, or recombinant inbred line
+(RIL) populations into a complete marker order, co-segregation bins, and a
+confidence-supported framework with placement uncertainty. It does not discover
+linkage groups, infer phase for general F2 or full-sib crosses, or estimate
+centimorgan distances.
 
 ## Install
 
@@ -43,8 +44,9 @@ python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfm
     )
     ```
 
-    Use `cross_design="ril"` or `"doubled_haploid"` for those population types.
-    Parent samples are removed from the offspring rows automatically.
+    Use `cross_design="ril"` for recombinant inbred lines or
+    `"doubled_haploid"` for doubled-haploid populations. Parent samples are removed
+    from the offspring rows automatically.
 
 === "Already oriented VCF/BCF"
 

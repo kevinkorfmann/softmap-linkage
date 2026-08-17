@@ -54,8 +54,8 @@ sequentially.
 
 For a backcross, the first parent must be the recurrent parent. The recurrent-parent
 homozygote becomes state 0 and the recurrent/donor heterozygote becomes state 1.
-For an RIL or doubled-haploid cross, the first and second parental homozygotes become
-states 0 and 1 respectively.
+For a recombinant inbred line (RIL) or doubled-haploid cross, the first and second
+parental homozygotes become states 0 and 1 respectively.
 
 When `parents=None`, the loader keeps markers having exactly two observed offspring
 genotype classes and orders those classes by alternate-allele dosage. This is only

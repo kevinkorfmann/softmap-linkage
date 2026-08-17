@@ -9,10 +9,11 @@
 
 SoftMap is for researchers who already know which markers belong to one linkage
 group and need to determine their order from uncertain genotype data. It converts
-phased, two-state data from doubled-haploid, backcross, or RIL populations into a
-complete marker order, co-segregation bins, and a confidence-supported framework
-with placement uncertainty. It does not discover linkage groups, infer phase for
-general F2 or full-sib crosses, or estimate centimorgan distances.
+phased, two-state data from doubled-haploid, backcross, or recombinant inbred line
+(RIL) populations into a complete marker order, co-segregation bins, and a
+confidence-supported framework with placement uncertainty. It does not discover
+linkage groups, infer phase for general F2 or full-sib crosses, or estimate
+centimorgan distances.
 
 [Documentation](https://kevinkorfmann.github.io/softmap-linkage/) ·
 [API reference](https://kevinkorfmann.github.io/softmap-linkage/api/)
@@ -48,10 +49,11 @@ print(mapping.marker_table()[:3])
 mapping.plot("map.png")
 ```
 
-Use `cross_design="ril"` or `"doubled_haploid"` for those populations. SoftMap
-also accepts an offspring-by-marker NumPy probability matrix. It returns a complete
-marker order, a confidence-supported framework, per-marker bins and placement
-bounds, a JSON-serializable summary, and Matplotlib figures.
+Use `cross_design="ril"` for a recombinant inbred line population or
+`"doubled_haploid"` for a doubled-haploid population. SoftMap also accepts an
+offspring-by-marker NumPy probability matrix. It returns a complete marker order, a
+confidence-supported framework, per-marker bins and placement bounds, a
+JSON-serializable summary, and Matplotlib figures.
 
 ## Python API at a glance
 

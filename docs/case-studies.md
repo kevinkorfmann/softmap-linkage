@@ -14,7 +14,7 @@ are used only afterward as an external order check.
 | Study and material | Reanalysis slice | SoftMap result | What it demonstrates |
 | --- | ---: | ---: | --- |
 | Rahnamae et al., *Arabis* hybrids | Chr 1 · 742 offspring · 304 markers | 50 bins · 18-marker framework · r = 0.962 | Dense markers help after redundant patterns are binned |
-| Moore et al., *Arabidopsis* RILs | Chr 1 · 162 lines · 26 markers | 26-marker framework · r = 0.999 | Near-complete recovery in a phase-compatible RIL design |
+| Moore et al., *Arabidopsis* recombinant inbred lines (RILs) | Chr 1 · 162 lines · 26 markers | 26-marker framework · r = 0.999 | Near-complete recovery in a phase-compatible RIL design |
 | Sugiyama et al., mouse backcross | Chr 1 · 250 males · 22 markers | 2-marker framework · r = 0.701 | Selective genotyping correctly produces limited support |
 
 `r` is the absolute Pearson correlation between inferred rank and the published

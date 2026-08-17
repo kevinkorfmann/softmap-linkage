@@ -13,11 +13,17 @@ from your own data.
 
 Use SoftMap when all of the following are true:
 
-- Your population is doubled haploid, backcross, or a phased RIL-like population.
+- Your population is doubled haploid, backcross, or a phased recombinant inbred
+  line (RIL) population.
 - Each marker can be expressed as the probability of inheriting parental state 1.
 - Markers have already been assigned to a linkage group; you will analyze one
   group at a time.
 - Your matrix has at least two offspring and two markers.
+
+A recombinant inbred line (RIL) is a nearly homozygous line produced by repeatedly
+inbreeding descendants of a cross between two parents. Each RIL carries a stable
+mosaic of the two parental genomes. Here, **phased RIL** means that the genotype at
+each marker can be assigned consistently to parent 1 or parent 2.
 
 Probabilities near `0` and `1` mean strong evidence for the two parental states.
 Use `0.5` when the state is unknown. In particular, do not convert an unphased

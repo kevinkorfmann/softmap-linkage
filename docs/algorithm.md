@@ -15,7 +15,8 @@ denotes the observed sequence or genotype evidence. Thus, (p_{ij}=0.99) is stron
 evidence for state 1, (p_{ij}=0.01) is strong evidence for state 0, and
 (p_{ij}=0.5) is uninformative. The model requires the two states to have the same
 biological meaning across all markers. This condition is natural in a doubled
-haploid or backcross and can be obtained for a RIL when phase is known.
+haploid or backcross and can be obtained for a recombinant inbred line (RIL) when
+phase is known.
 
 The default pipeline is
 
