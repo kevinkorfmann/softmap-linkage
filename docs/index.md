@@ -23,8 +23,9 @@ python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfm
 
 === "VCF/BCF with parents"
 
-    This is the recommended route when parental samples are available. For a
-    backcross, put the recurrent parent first.
+    This is the recommended route when parental samples are available. The names
+    in `parents=(...)` are exact sample IDs from your VCF header. For a backcross,
+    put the recurrent parent first.
 
     ```python
     import softmap
@@ -32,7 +33,7 @@ python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfm
     data = softmap.read_vcf(
         "family.vcf.gz",
         chromosome="chr1",
-        parents=("recurrent_parent", "donor_parent"),
+        parents=("BC_PARENT", "DONOR_PARENT"),
         cross_design="backcross",
     )
 
@@ -44,9 +45,13 @@ python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfm
     )
     ```
 
+    Replace `BC_PARENT` and `DONOR_PARENT` with your own sample IDs. The recurrent
+    parent is the parent to which offspring were crossed back; the donor is the
+    other parent that contributed the alternative allele or trait. SoftMap removes
+    both parental samples from the offspring rows automatically.
+
     Use `cross_design="ril"` for recombinant inbred lines or
-    `"doubled_haploid"` for doubled-haploid populations. Parent samples are removed
-    from the offspring rows automatically.
+    `"doubled_haploid"` for doubled-haploid populations.
 
 === "Already oriented VCF/BCF"
 

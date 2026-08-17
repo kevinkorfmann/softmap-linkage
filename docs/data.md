@@ -43,10 +43,17 @@ reverse parental-state orientation between markers:
 data = softmap.read_vcf(
     "family.bcf",
     chromosome="chr1",
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("BC_PARENT", "DONOR_PARENT"),
     cross_design="backcross",
 )
 ```
+
+The two strings are exact sample IDs from the VCF header, not fixed SoftMap
+keywords. If the sample columns are `RP01`, `DP01`, `child_01`, and `child_02`, use
+`parents=("RP01", "DP01")`. In a backcross, the first sample is the recurrent
+parent—the parent to which offspring were crossed back—and the second is the donor
+parent. For RIL and doubled-haploid populations, the two samples simply define
+parental states 0 and 1. Parent samples are not treated as offspring.
 
 The loader keeps `PL` or `GL` uncertainty when available and otherwise converts
 compatible `GT` calls to near-certain probabilities. Missing and incompatible calls
@@ -97,7 +104,7 @@ The CLI also reads variant files directly:
 
 ```bash
 softmap family.vcf.gz map.tsv --chromosome chr1 \
-  --parents recurrent_parent donor_parent --cross-design backcross
+  --parents BC_PARENT DONOR_PARENT --cross-design backcross
 ```
 
 ## Cross design

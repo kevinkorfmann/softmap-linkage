@@ -12,7 +12,8 @@ python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfm
 
 ## Run your VCF or BCF
 
-For a parent-oriented backcross, list the recurrent parent first:
+For a parent-oriented backcross, use the exact parental sample IDs from the VCF
+header and list the recurrent parent first:
 
 ```python
 import softmap
@@ -20,7 +21,7 @@ import softmap
 data = softmap.read_vcf(
     "family.vcf.gz",
     chromosome="chr1",
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("BC_PARENT", "DONOR_PARENT"),
     cross_design="backcross",
 )
 
@@ -33,6 +34,12 @@ print(mapping.marker_table()[:3])
 
 mapping.plot("map.png")
 ```
+
+`BC_PARENT` and `DONOR_PARENT` are placeholders, not special SoftMap words. Replace
+them with the two parent column names in your file. The recurrent parent is the
+parent to which offspring were crossed back; the donor is the other parent that
+contributed the alternative allele or trait. SoftMap excludes those two samples
+from the offspring automatically.
 
 The input must contain one linkage group of passing biallelic SNPs. Use
 `cross_design="ril"` for a recombinant inbred line population or

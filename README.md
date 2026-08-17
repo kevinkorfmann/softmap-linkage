@@ -26,8 +26,8 @@ Install SoftMap with plotting support:
 python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
 ```
 
-For a backcross VCF/BCF with parental samples, list the recurrent parent first and
-fit one chromosome at a time:
+For a backcross VCF/BCF with parental samples, fit one chromosome at a time. The
+two values in `parents=(...)` must be the **exact sample IDs from your VCF header**:
 
 ```python
 import softmap
@@ -35,7 +35,7 @@ import softmap
 data = softmap.read_vcf(
     "family.vcf.gz",
     chromosome="chr1",
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("BC_PARENT", "DONOR_PARENT"),
     cross_design="backcross",
 )
 
@@ -48,6 +48,14 @@ print(mapping.marker_table()[:3])
 
 mapping.plot("map.png")
 ```
+
+Here, `BC_PARENT` is the recurrent parent: the parent to which offspring were
+crossed back and whose genetic background the backcross is intended to retain.
+`DONOR_PARENT` is the other parent, which contributed the alternative allele or
+trait. Replace both names with your own VCF sample IDs. For example, if the header
+ends with `FORMAT RP01 DP01 child_01 child_02`, use `parents=("RP01", "DP01")`.
+SoftMap uses the first name as the recurrent parent, the second as the donor, and
+automatically excludes both parent columns from the offspring being mapped.
 
 Use `cross_design="ril"` for a recombinant inbred line population or
 `"doubled_haploid"` for a doubled-haploid population. SoftMap also accepts an
@@ -133,14 +141,16 @@ data = softmap.read_vcf("offspring.vcf.gz", chromosome="chr1")
 mapping = softmap.fit(data)
 ```
 
-For a parent-oriented cross, provide the two parental sample names and cross design
-separately. In a backcross, list the recurrent parent first:
+For a parent-oriented cross, provide the two parental sample IDs and cross design
+separately. These are names from the VCF header, not the literal words
+`recurrent_parent` and `donor_parent`. In a backcross, list the recurrent parent
+first:
 
 ```python
 data = softmap.read_vcf(
     "family.bcf",
     chromosome="chr1",
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("BC_PARENT", "DONOR_PARENT"),
     cross_design="backcross",
 )
 ```
@@ -150,7 +160,7 @@ data = softmap.read_vcf(
 | `path` | `.vcf`, `.vcf.gz`, or `.bcf` input path. |
 | `chromosome` | Exact contig to retain. If omitted, usable markers must come from one contig. |
 | `samples` | Optional offspring names and row order; otherwise all non-parent samples are used. |
-| `parents` | `(state0_parent, state1_parent)`; for a backcross, state 0 is the recurrent parent. |
+| `parents` | Two exact VCF sample IDs. For a backcross use `(recurrent_parent_ID, donor_parent_ID)`; for an RIL or doubled-haploid cross use `(state0_parent_ID, state1_parent_ID)`. |
 | `cross_design` | `auto`, `backcross`, `ril`, or `doubled_haploid`; explicit design is required with parents. |
 
 Parent samples are excluded from offspring automatically. SoftMap uses `PL` or
@@ -278,7 +288,7 @@ The CLI accepts the same variant-file formats:
 ```bash
 softmap family.vcf.gz map.tsv \
   --chromosome chr1 \
-  --parents recurrent_parent donor_parent \
+  --parents BC_PARENT DONOR_PARENT \
   --cross-design backcross \
   --bootstrap 100
 ```

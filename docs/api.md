@@ -49,11 +49,14 @@ sequentially.
 | `path` | `str` or `pathlib.Path` | Input `.vcf`, `.vcf.gz`, or `.bcf` file. |
 | `chromosome` | `str` or `None` | Exact VCF contig name to retain, such as `"chr1"`. If omitted, the usable markers must belong to one contig. |
 | `samples` | iterable of sample names or `None` | Offspring columns to load, in the requested row order. If omitted, all non-parent samples are used. At least two unique samples are required. |
-| `parents` | two sample names or `None` | `(state0_parent, state1_parent)`. Both must be distinct, homozygous, informative VCF samples at a retained marker. They are excluded from the offspring by default. |
+| `parents` | two sample names or `None` | Two exact sample IDs from the VCF header, written `(state0_parent_ID, state1_parent_ID)`. These are user data, not reserved words. Both must be distinct, homozygous, and informative at a retained marker. They are excluded from the offspring by default. |
 | `cross_design` | `str` | One of `"auto"`, `"backcross"`, `"ril"`, or `"doubled_haploid"`. A non-auto value is required when `parents` is supplied. |
 
-For a backcross, the first parent must be the recurrent parent. The recurrent-parent
-homozygote becomes state 0 and the recurrent/donor heterozygote becomes state 1.
+For a backcross, the first parent must be the recurrent parent: the parent to which
+offspring were crossed back and whose genetic background is being retained. The
+second is the donor parent, which contributed the alternative allele or trait. The
+recurrent-parent homozygote becomes state 0 and the recurrent/donor heterozygote
+becomes state 1.
 For a recombinant inbred line (RIL) or doubled-haploid cross, the first and second
 parental homozygotes become states 0 and 1 respectively.
 
@@ -108,6 +111,15 @@ Duplicate marker names cause an error rather than silently overwriting a marker.
 
 #### Parent-oriented example
 
+Suppose the end of the VCF header is:
+
+```text
+#CHROM ... FORMAT RP01 DP01 offspring_01 offspring_02 offspring_03
+```
+
+Then `RP01` and `DP01` are the names to pass below. They are replaced by the exact
+parent column names in each user's file.
+
 ```python
 import softmap
 
@@ -115,7 +127,7 @@ data = softmap.read_vcf(
     "family.vcf.gz",
     chromosome="chr1",
     samples=["offspring_01", "offspring_02", "offspring_03"],
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("RP01", "DP01"),
     cross_design="backcross",
 )
 
@@ -343,7 +355,7 @@ import softmap
 data = softmap.read_vcf(
     "family.vcf.gz",
     chromosome="chr1",
-    parents=("recurrent_parent", "donor_parent"),
+    parents=("RP01", "DP01"),
     cross_design="backcross",
 )
 

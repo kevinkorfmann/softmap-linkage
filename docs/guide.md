@@ -9,6 +9,29 @@ from your own data.
     not discover linkage groups or estimate centimorgan distances. Its input is a
     matrix of phased, binary parental-origin probabilities.
 
+## Before you start: key terms
+
+| Term | Plain-language meaning |
+| --- | --- |
+| Sample | One named individual or line, usually represented by one column in a VCF. |
+| Parent | One of the two original samples whose alleles define the two inheritance states. |
+| Offspring | The progeny samples used to observe recombination and build the map. Parent samples are not offspring. |
+| Marker | A variable genomic site, usually a SNP, whose inheritance is followed across offspring. |
+| Linkage group | A set of markers inherited together; this often corresponds to one chromosome. SoftMap expects this grouping to be known already. |
+| Recurrent parent | In a backcross, the parent to which offspring were crossed back and whose genetic background is intended to be retained. |
+| Donor parent | The other backcross parent, which contributed the alternative allele or trait. |
+| Phase | A consistent assignment of alleles to parent 1 or parent 2 across markers. |
+| Bin | Markers that SoftMap cannot order relative to one another because they show the same inheritance pattern in the offspring. |
+| Bootstrap support | How often an ordering relationship reappears after resampling the offspring. |
+| Framework | The subset of markers whose relative order reaches the chosen bootstrap-support threshold. |
+
+When code shows `parents=("BC_PARENT", "DONOR_PARENT")`, the strings are
+placeholders for **exact sample IDs in your VCF header**. For example, a header
+ending in `FORMAT RP01 DP01 child_01 child_02` requires
+`parents=("RP01", "DP01")`. In a backcross the order matters: recurrent parent
+first, donor parent second. SoftMap automatically excludes those two samples from
+the offspring rows.
+
 ## 1. Check that your data are suitable
 
 Use SoftMap when all of the following are true:
