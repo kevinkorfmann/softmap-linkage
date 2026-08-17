@@ -371,7 +371,10 @@ def plot_physical_order_grid(
         )
     for axis in axes[len(mappings) * 2:]:
         axis.set_visible(False)
-    fig.suptitle("Physical position vs genetic-map order, before and after", fontweight="normal")
+    fig.suptitle(
+        "Rahnamae et al. (2026): physical position vs genetic-map order",
+        fontweight="normal",
+    )
     if path is not None:
         destination = Path(path)
         destination.parent.mkdir(parents=True, exist_ok=True)

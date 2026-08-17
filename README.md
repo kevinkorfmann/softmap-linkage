@@ -45,7 +45,7 @@ general F2 and full-sib data.
 ## Published-data example
 
 The repository includes a reproducible example using chromosome 1 from the
-[Rahnamae et al. contemporary hybridization dataset](https://github.com/nedarahnama/Contemporary_hybridization):
+[Rahnamae et al. (2026) contemporary hybridization dataset](https://github.com/nedarahnama/Contemporary_hybridization):
 
 ```bash
 python examples/contemporary_hybridization.py

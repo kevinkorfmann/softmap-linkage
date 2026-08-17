@@ -115,7 +115,7 @@ def contemporary_hybridization(
         probabilities,
         tuple(row[0] for row in rows),
         np.asarray([float(row[2]) for row in rows]),
-        f"Rahnamae et al., chromosome {chromosome}",
+        f"Rahnamae et al. (2026), chromosome {chromosome}",
         physical_positions,
     )
 
@@ -137,5 +137,5 @@ def contemporary_map_positions(
         np.asarray([int(row[1]) for row in rows]),
         np.asarray([float(row[0].rsplit("_", 1)[1]) for row in rows]),
         np.asarray([float(row[2]) for row in rows]),
-        "Rahnamae et al. physical and genetic map",
+        "Rahnamae et al. (2026), physical and genetic map",
     )

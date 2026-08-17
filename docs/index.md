@@ -25,8 +25,8 @@ rather than centimorgan distances, so the vertical axes are marker ranks.
 
 ![Marker order before and after](assets/marker_order_before_after.png)
 
-The marker-matrix figure shows a reproducibly shuffled chromosome 1 from the Rahnamae
-et al. dataset before and after marker ordering. Both panels contain the same
+The marker-matrix figure shows a reproducibly shuffled chromosome 1 from the
+Rahnamae et al. (2026) dataset before and after marker ordering. Both panels contain the same
 probabilities; only the marker columns change. See the
 [plotting guide](plotting.md) for the conversion and interpretation.
 

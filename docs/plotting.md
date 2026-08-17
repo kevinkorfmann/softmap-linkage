@@ -38,7 +38,11 @@ This conversion tests loading, fitting, uncertainty summaries, and plotting, but
 does not perform full F2 phase inference and should not be treated as a revised
 biological map.
 
-Source: [Rahnamae et al., Contemporary_hybridization](https://github.com/nedarahnama/Contemporary_hybridization)
+Source data: [Rahnamae et al., Contemporary_hybridization](https://github.com/nedarahnama/Contemporary_hybridization)
+
+Article: Rahnamae et al. (2026), New Phytologist 249: 1542–1557,
+[doi:10.1111/nph.70779](https://doi.org/10.1111/nph.70779). The article was first
+published online in December 2025; its final citation year is 2026.
 
 ## Physical and genetic map
 
