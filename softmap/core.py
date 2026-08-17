@@ -86,6 +86,65 @@ class HierarchicalSoftMapResult:
         return "ok"
 
 
+LikelihoodMDSConfig = tuple[str, float, int, int]
+
+
+DEFAULT_LIKELIHOOD_MDS_CONFIGS: tuple[LikelihoodMDSConfig, ...] = (
+    ("rf", 1.0, 20, 1),
+    ("rf", 1.0, 20, 2),
+    ("rf", 1.0, 20, 3),
+    ("haldane", 1.0, 20, 1),
+    ("haldane", 1.0, 20, 2),
+    ("haldane", 1.0, 20, 3),
+    ("kosambi", 1.0, 20, 1),
+    ("kosambi", 1.0, 20, 2),
+    ("kosambi", 1.0, 20, 3),
+    ("haldane", 2.0, 30, 3),
+    ("haldane", 3.0, 50, 1),
+    ("rf", 2.0, 20, 3),
+)
+
+
+@dataclass(frozen=True)
+class LikelihoodMDSEnsembleResult:
+    """Confidence-first total order and model-stability rank bands."""
+
+    marker_names: tuple[str, ...]
+    order: IntArray
+    candidate_orders: IntArray
+    candidate_positions: IntArray
+    interval_left: IntArray
+    interval_right: IntArray
+    candidate_configs: tuple[LikelihoodMDSConfig, ...]
+    selected_candidate_index: int
+    uniform_candidate_index: int
+    weighted_candidate_indices: IntArray
+    uniform_scores: FloatArray
+    weighted_scores: FloatArray
+    unanimous_family_veto_triggered: bool
+    stability_mass: float
+    stability_comparable_pair_fraction: float
+    mean_normalized_rank_sd: float
+    mean_pairwise_vote_margin: float
+    uncertain_pair_fraction_75: float
+    mean_genotype_certainty: float
+
+    def ordered_names(self) -> list[str]:
+        return [self.marker_names[int(index)] for index in self.order]
+
+    @property
+    def selected_config(self) -> LikelihoodMDSConfig:
+        return self.candidate_configs[self.selected_candidate_index]
+
+    @property
+    def status(self) -> str:
+        if self.stability_comparable_pair_fraction == 0.0:
+            return "insufficient_order_information"
+        if self.stability_comparable_pair_fraction < 0.10:
+            return "limited_order_information"
+        return "ok"
+
+
 def _validate_probabilities(probabilities: FloatArray) -> FloatArray:
     p = np.asarray(probabilities, dtype=np.float64)
     if p.ndim != 2:
@@ -1206,6 +1265,199 @@ def bootstrap_rank_intervals(
     else:
         raise ValueError("rank interval method must be 'central' or 'shortest'")
     return left.astype(np.int64), right.astype(np.int64)
+
+
+def _weighted_vector_correlation(
+    first: FloatArray,
+    second: FloatArray,
+    weights: FloatArray,
+) -> float:
+    total = float(np.sum(weights))
+    if total <= 0.0:
+        return 0.0
+    first_mean = float(np.sum(weights * first) / total)
+    second_mean = float(np.sum(weights * second) / total)
+    first_centered = first - first_mean
+    second_centered = second - second_mean
+    covariance = float(np.sum(weights * first_centered * second_centered))
+    denominator = np.sqrt(
+        float(np.sum(weights * first_centered**2))
+        * float(np.sum(weights * second_centered**2))
+    )
+    return covariance / denominator if denominator > 0.0 else 0.0
+
+
+def _likelihood_mds_score_weights(lod: FloatArray) -> tuple[FloatArray, ...]:
+    positive = np.maximum(np.asarray(lod, dtype=np.float64), 1e-12)
+    observed = positive[lod > 0.0]
+    if observed.size == 0:
+        observed = positive
+    weights: list[FloatArray] = [
+        positive,
+        positive**2,
+        positive**0.25,
+        np.sqrt(positive),
+        positive**0.75,
+        positive**1.5,
+    ]
+    for quantile in (0.75, 0.90, 0.95):
+        cap = float(np.quantile(observed, quantile))
+        weights.append(np.minimum(positive, cap) ** 2)
+    return tuple(weights)
+
+
+def _validate_likelihood_mds_configs(
+    configs: Iterable[LikelihoodMDSConfig],
+) -> tuple[LikelihoodMDSConfig, ...]:
+    normalized: list[LikelihoodMDSConfig] = []
+    for distance, lod_exponent, dimensions, curve_knots in configs:
+        config = (
+            str(distance),
+            float(lod_exponent),
+            int(dimensions),
+            int(curve_knots),
+        )
+        if config[0] not in {"rf", "haldane", "kosambi"}:
+            raise ValueError("candidate distance must be rf, haldane, or kosambi")
+        if config[1] <= 0.0 or not np.isfinite(config[1]):
+            raise ValueError("candidate LOD exponent must be positive and finite")
+        if config[2] < 1 or config[3] < 1:
+            raise ValueError("candidate dimensions and curve knots must be positive")
+        if config not in normalized:
+            normalized.append(config)
+    if len(normalized) < 2:
+        raise ValueError("at least two distinct candidate configurations are required")
+    return tuple(normalized)
+
+
+def fit_likelihood_mds_ensemble(
+    probabilities: FloatArray,
+    marker_names: Iterable[str] | None = None,
+    *,
+    candidate_configs: Iterable[LikelihoodMDSConfig] = (
+        DEFAULT_LIKELIHOOD_MDS_CONFIGS
+    ),
+    stability_mass: float = 0.90,
+    maximum_smacof_iterations: int = 500,
+) -> LikelihoodMDSEnsembleResult:
+    """Fit SoftMap's robust likelihood-MDS ensemble.
+
+    Candidate orders are scored by the global correlation between inferred rank
+    separation and pairwise recombination fraction. The unweighted score supplies
+    the robust default. It is vetoed only when all nine prespecified LOD-weighted
+    objectives select the same curve complexity within the very same embedding
+    family. Rank bands summarize model sensitivity across every candidate and are
+    deliberately labelled stability bands rather than nominal confidence bounds.
+    """
+
+    p = _validate_probabilities(probabilities)
+    if not 0.0 < stability_mass < 1.0:
+        raise ValueError("stability_mass must lie between zero and one")
+    if maximum_smacof_iterations < 1:
+        raise ValueError("maximum_smacof_iterations must be positive")
+    configs = _validate_likelihood_mds_configs(candidate_configs)
+    names = (
+        tuple(marker_names)
+        if marker_names is not None
+        else tuple(f"m{index + 1}" for index in range(p.shape[1]))
+    )
+    if len(names) != p.shape[1]:
+        raise ValueError("marker_names length must match the number of markers")
+    if len(set(names)) != len(names):
+        raise ValueError("marker_names must be unique")
+
+    recombination, lod = pairwise_recombination_likelihood(p)
+    orders = np.asarray([
+        likelihood_weighted_mds_order(
+            recombination,
+            lod,
+            distance=distance,
+            lod_exponent=lod_exponent,
+            dimensions=dimensions,
+            principal_curve_knots=curve_knots,
+            maximum_smacof_iterations=maximum_smacof_iterations,
+        )
+        for distance, lod_exponent, dimensions, curve_knots in configs
+    ], dtype=np.int64)
+    marker_count = p.shape[1]
+    upper = np.triu_indices(marker_count, 1)
+    pair_rf = recombination[upper]
+    pair_lod = lod[upper]
+    score_weights = _likelihood_mds_score_weights(pair_lod)
+    uniform_scores = np.empty(len(configs), dtype=np.float64)
+    weighted_scores = np.empty(
+        (len(score_weights), len(configs)), dtype=np.float64
+    )
+    for candidate_index, order in enumerate(orders):
+        positions = np.empty(marker_count, dtype=np.int64)
+        positions[order] = np.arange(marker_count)
+        separation = np.abs(
+            positions[upper[0]] - positions[upper[1]]
+        ) / max(marker_count - 1, 1)
+        uniform_scores[candidate_index] = float(np.corrcoef(
+            separation, pair_rf
+        )[0, 1])
+        for weight_index, weights in enumerate(score_weights):
+            weighted_scores[weight_index, candidate_index] = (
+                _weighted_vector_correlation(separation, pair_rf, weights)
+            )
+    uniform_index = int(np.argmax(uniform_scores))
+    weighted_indices = np.argmax(weighted_scores, axis=1).astype(np.int64)
+    unanimous_index = int(weighted_indices[0])
+    unanimous = bool(np.all(weighted_indices == unanimous_index))
+    uniform_config = configs[uniform_index]
+    unanimous_config = configs[unanimous_index]
+    veto = bool(
+        unanimous
+        and unanimous_index != uniform_index
+        and unanimous_config[:3] == uniform_config[:3]
+    )
+    selected_index = unanimous_index if veto else uniform_index
+
+    reference_positions = np.empty(marker_count, dtype=np.int64)
+    reference_positions[orders[0]] = np.arange(marker_count)
+    candidate_positions = np.empty_like(orders)
+    for index, order in enumerate(orders):
+        aligned = _align_to_reference(order, reference_positions)
+        candidate_positions[index, aligned] = np.arange(marker_count)
+    left, right = bootstrap_rank_intervals(
+        candidate_positions,
+        confidence=stability_mass,
+        method="central",
+    )
+    pair_comparable = (
+        (right[upper[0]] < left[upper[1]])
+        | (right[upper[1]] < left[upper[0]])
+    )
+    rank_sd = np.std(candidate_positions, axis=0)
+    preference_fraction = np.mean(
+        candidate_positions[:, :, None] < candidate_positions[:, None, :],
+        axis=0,
+    )
+    vote_margin = np.abs(2.0 * preference_fraction[upper] - 1.0)
+    return LikelihoodMDSEnsembleResult(
+        marker_names=names,
+        order=orders[selected_index].copy(),
+        candidate_orders=orders,
+        candidate_positions=candidate_positions,
+        interval_left=left,
+        interval_right=right,
+        candidate_configs=configs,
+        selected_candidate_index=selected_index,
+        uniform_candidate_index=uniform_index,
+        weighted_candidate_indices=weighted_indices,
+        uniform_scores=uniform_scores,
+        weighted_scores=weighted_scores,
+        unanimous_family_veto_triggered=veto,
+        stability_mass=stability_mass,
+        stability_comparable_pair_fraction=float(np.mean(pair_comparable)),
+        mean_normalized_rank_sd=float(
+            np.mean(rank_sd) / max(marker_count - 1, 1)
+        ),
+        mean_pairwise_vote_margin=float(np.mean(vote_margin)),
+        uncertain_pair_fraction_75=float(np.mean(vote_margin < 0.5)),
+        mean_genotype_certainty=float(np.mean(np.abs(2.0 * p - 1.0))),
+    )
 
 
 def hmm_log_likelihood(probabilities: FloatArray, order: IntArray) -> float:

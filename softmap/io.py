@@ -7,7 +7,11 @@ from pathlib import Path
 
 import numpy as np
 
-from .core import HierarchicalSoftMapResult, SoftMapResult
+from .core import (
+    HierarchicalSoftMapResult,
+    LikelihoodMDSEnsembleResult,
+    SoftMapResult,
+)
 
 
 def read_probability_tsv(path: str | Path) -> tuple[tuple[str, ...], np.ndarray]:
@@ -74,6 +78,31 @@ def write_result_tsv(result: SoftMapResult, path: str | Path) -> None:
                     int(result.interval_right[group]),
                 ]
             )
+
+
+def write_likelihood_mds_result_tsv(
+    result: LikelihoodMDSEnsembleResult,
+    path: str | Path,
+) -> None:
+    """Write the selected order and model-stability rank band per marker."""
+
+    rank = np.empty(result.order.size, dtype=np.int64)
+    rank[result.order] = np.arange(result.order.size)
+    with Path(path).open("w", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow([
+            "marker",
+            "order_rank",
+            "stability_rank_left",
+            "stability_rank_right",
+        ])
+        for marker, name in enumerate(result.marker_names):
+            writer.writerow([
+                name,
+                int(rank[marker]),
+                int(result.interval_left[marker]),
+                int(result.interval_right[marker]),
+            ])
 
 
 def write_hierarchical_result_tsv(

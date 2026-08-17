@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Confidence-first linkage mapping from probabilistic genotypes"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy>=2.0", "scipy>=1.14"]
+dependencies = ["numpy>=2.0", "pysam>=0.23", "scipy>=1.14"]
 license = "MIT"
 
 [project.urls]

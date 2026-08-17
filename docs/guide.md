@@ -134,7 +134,7 @@ the framework and the uncertainty shown in the plot.
 | `order_rank` | Inferred rank of the marker's bin. |
 | `is_representative` | Whether this marker represents its bin in the fitted order. |
 | `framework_rank` | Supported framework position, or `None` when it is not in the framework. |
-| `interval_left`, `interval_right` | Bootstrap placement bounds in representative-bin ranks. |
+| `interval_left`, `interval_right` | Placement bounds relative to supported framework anchors; `-1` and the framework size denote positions beyond the two end anchors. |
 
 The plot call returns a standard Matplotlib `Figure`. You can inspect or customize
 it before saving another version:
@@ -188,10 +188,11 @@ with open("marker_names.txt", "w", encoding="utf-8") as handle:
 Repeat the conversion separately for each linkage group.
 
 !!! warning "Probabilities are not genotype labels"
-    SoftMap does not accept allele strings such as `AA`, `AB`, and `BB` directly.
-    Convert calls or genotype likelihoods using a model appropriate for your cross.
-    A value of `0.5` means no information about the binary parental state; it does
-    not generally mean heterozygous.
+    For manual matrices, convert allele strings such as `AA`, `AB`, and `BB` using
+    a model appropriate for your cross. Alternatively, use `softmap.read_vcf()` to
+    convert binary-cross `GT`, `PL`, or `GL` fields. A value of `0.5` means no
+    information about the binary parental state; it does not generally mean
+    heterozygous.
 
 ## 6. Validate the files before fitting
 
@@ -335,7 +336,7 @@ The command prints a JSON summary and writes `map.tsv`. Its columns mean:
 | `order_rank` | Inferred rank of that bin; lower ranks occur earlier in the map. |
 | `is_representative` | `1` for the marker representing its bin, otherwise `0`. |
 | `framework_rank` | Supported framework position, blank if the bin is not in the framework. |
-| `interval_left`, `interval_right` | Bootstrap placement bounds in representative-bin ranks. |
+| `interval_left`, `interval_right` | Placement bounds relative to supported framework anchors; `-1` and the framework size denote positions beyond the two end anchors. |
 
 The CLI input is transposed relative to the Python matrix: markers are rows in the
 TSV because that makes the file easier to read, but the Python API always expects

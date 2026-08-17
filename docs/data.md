@@ -22,6 +22,34 @@ they are suitable for biological inference. The Rahnamae et al. (2026) F2 exampl
 uses heterozygous calls as 0.5 to test loading, ordering, and plotting. It is a
 software demonstration, not a replacement F2 linkage analysis.
 
+## VCF and BCF input
+
+VCF, bgzipped VCF, and BCF are the standard file inputs. Restrict each run to one
+chromosome or contig:
+
+```python
+import softmap
+
+data = softmap.read_vcf("family.vcf.gz", chromosome="chr1")
+mapping = softmap.fit(data)
+```
+
+If parental samples are present, pass them separately so REF/ALT changes do not
+reverse parental-state orientation between markers:
+
+```python
+data = softmap.read_vcf(
+    "family.bcf",
+    chromosome="chr1",
+    parents=("recurrent_parent", "donor_parent"),
+    cross_design="backcross",
+)
+```
+
+The loader keeps `PL` or `GL` uncertainty when available and otherwise converts
+compatible `GT` calls to near-certain probabilities. Missing and incompatible calls
+become 0.5. Only passing biallelic SNPs with two usable states are retained.
+
 ## Probability matrix
 
 SoftMap expects an offspring-by-marker matrix. Values near zero or one represent
@@ -61,6 +89,13 @@ Run it with:
 
 ```bash
 softmap probabilities.tsv map.tsv --bootstrap 100
+```
+
+The CLI also reads variant files directly:
+
+```bash
+softmap family.vcf.gz map.tsv --chromosome chr1 \
+  --parents recurrent_parent donor_parent --cross-design backcross
 ```
 
 ## Cross design

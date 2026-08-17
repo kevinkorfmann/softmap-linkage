@@ -29,3 +29,9 @@ def test_demo_is_plotable_and_inspectable():
         figure = mapping.plot(destination)
         assert destination.exists()
         assert len(figure.axes) == 3
+        probability_cmap = figure.axes[0].images[0].cmap
+        from matplotlib.colors import to_hex
+
+        assert to_hex(probability_cmap(0.0)) == "#fde0dd"
+        assert to_hex(probability_cmap(1.0)) == "#c51b8a"
+        assert to_hex(figure.axes[1].lines[0].get_color()) == "#000000"

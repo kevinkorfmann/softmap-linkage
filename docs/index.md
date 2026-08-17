@@ -1,66 +1,200 @@
 # SoftMap
 
-SoftMap creates confidence-aware linkage maps from probabilistic inheritance states.
-It is designed for cases where read depth, imputation, or genotype uncertainty make
-hard calls misleading.
+SoftMap takes genotype data for one linkage group and returns a complete marker
+order, a confidence-supported framework, marker-level placement bounds, and
+diagnostic plots. It preserves genotype uncertainty instead of forcing every call
+to zero or one.
 
-The small public interface has three main steps:
+## Install
+
+```bash
+python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
+```
+
+## Start with your data
+
+| Your input | What SoftMap expects |
+| --- | --- |
+| VCF, bgzipped VCF, or BCF | Passing biallelic SNPs from one chromosome/contig, with offspring genotypes and preferably two parental samples. |
+| NumPy array | A finite offspring-by-marker matrix of parental-state-1 probabilities in `[0, 1]`. |
+
+=== "VCF/BCF with parents"
+
+    This is the recommended route when parental samples are available. For a
+    backcross, put the recurrent parent first.
+
+    ```python
+    import softmap
+
+    data = softmap.read_vcf(
+        "family.vcf.gz",
+        chromosome="chr1",
+        parents=("recurrent_parent", "donor_parent"),
+        cross_design="backcross",
+    )
+
+    mapping = softmap.fit(
+        data,
+        bootstrap=100,
+        confidence=0.8,
+        seed=7,
+    )
+    ```
+
+    Use `cross_design="ril"` or `"doubled_haploid"` for those population types.
+    Parent samples are removed from the offspring rows automatically.
+
+=== "Already oriented VCF/BCF"
+
+    If REF/ALT coding already has the same binary parental-state orientation at
+    every marker and the file contains one contig, use the short form:
+
+    ```python
+    import softmap
+
+    mapping = softmap.fit(
+        "offspring.vcf.gz",
+        bootstrap=100,
+        confidence=0.8,
+    )
+    ```
+
+    Call `read_vcf()` explicitly when you need to select a chromosome or offspring
+    samples. Supplying parents is safer when REF/ALT orientation varies relative to
+    parental origin.
+
+=== "Probability matrix"
+
+    Rows are offspring, columns are markers, and each value is the probability of
+    parental state 1. A value of 0.5 means that the binary state is unknown.
+
+    ```python
+    import numpy as np
+    import softmap
+
+    probabilities = np.array([
+        [0.01, 0.04, 0.95],
+        [0.99, 0.92, 0.08],
+        [0.50, 0.87, 0.12],
+    ])
+
+    mapping = softmap.fit(
+        probabilities,
+        marker_names=["m1", "m2", "m3"],
+        bootstrap=100,
+        confidence=0.8,
+    )
+    ```
+
+SoftMap fits **one known linkage group per call**. It does not split a genome-wide
+VCF into linkage groups. Use `chromosome="..."` or prepare each linkage group
+separately.
+
+## What comes back?
+
+`softmap.fit()` returns a `Map` object. It keeps both convenient, serializable
+outputs and the complete low-level result:
+
+```python
+print(mapping.summary())
+print(mapping.ordered_markers[:10])
+print(mapping.framework_markers[:10])
+print(mapping.marker_table()[:3])
+
+mapping.plot("map.png")
+mapping.plot_marker_order("marker_order.png")
+```
+
+| Output | Meaning |
+| --- | --- |
+| `mapping.summary()` | Run status, offspring count, marker count, bin count, framework size, and confidence threshold. |
+| `mapping.ordered_markers` | Every input marker in the inferred complete order. |
+| `mapping.framework_markers` | The more defensible backbone whose pairwise order reaches the requested support. |
+| `mapping.marker_table()` | One row per input marker with its bin, order rank, framework rank, and placement bounds. |
+| `mapping.plot(path)` | Probability blocks along the inferred map, returned as a Matplotlib figure and optionally saved. |
+| `mapping.plot_marker_order(path)` | Input marker order compared with inferred order. |
+| `mapping.data` | The normalized `LinkageData` used for fitting. |
+| `mapping.result` | Low-level bin, bootstrap, precedence, framework, and interval arrays. |
+
+The summary `status` is `ok` when at least three framework markers are supported;
+otherwise it is `limited_support`. Limited support is a scientific diagnostic, not
+a software error.
+
+Each marker-table row contains zero-based ranks:
+
+| Field | Meaning |
+| --- | --- |
+| `marker` | Input VCF ID, `CHROM:POS` fallback, or supplied array marker name. |
+| `bin` | Co-segregation-bin identifier; markers in one bin are not distinguishable at the selected threshold. |
+| `order_rank` | Rank of that bin in the complete inferred bin order. |
+| `is_representative` | Whether the marker represented its bin during fitting. |
+| `framework_rank` | Supported framework rank, or `None`. |
+| `interval_left`, `interval_right` | Placement relative to framework anchors, not base pairs or centimorgans. `-1` and the framework size represent positions beyond the end anchors. |
+
+Map orientation is arbitrary: a complete reversal represents the same linkage map.
+SoftMap estimates marker order and support, not centimorgan distances.
+
+## How VCF fields are interpreted
+
+`read_vcf()` converts two genotype states into a state-1 probability:
+
+| VCF information | Output probability |
+| --- | --- |
+| Usable `PL` | Normalized probability from the two relevant phred-scaled genotype likelihoods. |
+| Usable `GL` without `PL` | Normalized probability from the two relevant log10 genotype likelihoods. |
+| Compatible `GT` only | `0.01` for state 0 or `0.99` for state 1. |
+| No usable likelihood and missing/incompatible `GT` | `0.5`, meaning unknown binary state. |
+
+The loader retains passing biallelic SNPs with two usable inheritance states. It
+skips indels, multiallelic variants, failed filters, monomorphic variants, and
+parent-uninformative markers. It returns offspring-by-marker probabilities, marker
+names, physical VCF positions, and the chromosome label in `LinkageData`.
+
+See the [complete API reference](api.md) for every input argument, filtering rule,
+output field, exception, and an end-to-end export example.
+
+## Important fitting settings
+
+| Setting | Practical meaning |
+| --- | --- |
+| `bootstrap=20` | Fast diagnostic default. |
+| `bootstrap=100` or more | Recommended starting point for a final analysis. |
+| `confidence=0.8` | Requires 80% pairwise precedence support for framework anchors. |
+| `bin_threshold=0.01` | Merges markers with at most about 1% expected disagreement; use `None` for automatic selection. |
+| `seed=7` | Makes bootstrap results reproducible. |
+
+For a robust complete order with model-sensitivity rank bands instead of a
+confidence-selected framework, see `softmap.fit_likelihood()` in the
+[API reference](api.md#likelihood-mds-ensemble-fitting).
+
+## Run the included example
 
 ```python
 import softmap
 
 data = softmap.demo()
 mapping = softmap.fit(data)
-figure = mapping.plot("map.png")
-
-print(mapping.summary())
-print(mapping.ordered_markers[:5])
-print(mapping.marker_table()[:5])
+mapping.plot("map.png")
 ```
-
-SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
-framework of markers whose pairwise order reaches the requested support. The code
-above writes this complete example map and keeps the Matplotlib figure available
-for inspection or customization:
 
 ![SoftMap runnable demo result](assets/softmap_demo_map.png)
 
-The [step-by-step guide](guide.md#3-run-a-small-example) explains both panels and
-shows how to inspect every marker's bin, rank, framework membership, and bootstrap
-interval.
+The [step-by-step guide](guide.md) explains the figure, validation, diagnostic and
+final settings, and result interpretation. The [quick start](quickstart.md) is the
+shortest runnable path, and the [case studies](case-studies.md) show plant RIL,
+plant hybrid, and mouse backcross examples.
 
-New users can follow the [step-by-step guide](guide.md) from installation through
-preparing their own data, validating the input, fitting a diagnostic map, and
-interpreting a final result. The [quick start](quickstart.md) is the compact version.
+## Is SoftMap appropriate for my cross?
 
 SoftMap is best suited to doubled-haploid, backcross, or phased RIL data with
 probabilistic genotype calls and many informative offspring. More offspring provide
-more observable crossovers; simply adding many co-segregating markers does not add
-the same ordering information. See [which data work best](data.md#which-data-work-best).
+more observable crossovers; adding co-segregating markers does not add equivalent
+ordering information.
 
-The [algorithm guide](algorithm.md) develops the probability model, graph ordering,
-bootstrap support, framework selection, and placement intervals from biological
-intuition to mathematical formulas.
+General unphased F2 and full-sib phase inference is outside the current model. See
+[which data work best](data.md#which-data-work-best) before biological
+interpretation. The [algorithm guide](algorithm.md) explains the probability model,
+ordering, bootstrap support, framework selection, and placement intervals.
 
-![Physical and genetic-map order before and after](assets/physical_order_before_after_grid.png)
-
-The top figure compares physical position with shuffled input rank and inferred
-genetic-map rank for all eight chromosomes in a 4×4 layout. SoftMap estimates order
-rather than centimorgan distances, so the vertical axes are marker ranks.
-
-![Marker order before and after](assets/marker_order_before_after.png)
-
-The marker-matrix figure shows a reproducibly shuffled chromosome 1 from the
-Rahnamae et al. (2026) dataset before and after marker ordering. Both panels contain the same
-probabilities; only the marker columns change. See the
-[plotting guide](plotting.md) for the conversion and interpretation.
-
-## Scope
-
-SoftMap currently accepts one linkage group represented as phased binary
-parental-origin probabilities. It is appropriate for doubled-haploid, backcross,
-or phased RIL-like data. General F2 and full-sib phase inference is outside the
-current model.
-
-The package is research software. A supported framework can be sparse when the data
-do not contain enough ordering information; that is an informative result.
+The package is research software. Inspect support summaries and validate the model
+assumptions for your cross before drawing biological conclusions.

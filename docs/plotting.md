@@ -7,6 +7,14 @@ mapping.plot("map.png")
 mapping.plot("map.svg")
 ```
 
+The probability panel uses the same light-pink → pink → magenta state scale as the
+before/after marker-order plots: state 0 is light, uncertain values near 0.5 are
+pink, and state 1 is dark magenta. Override the three anchors when needed:
+
+```python
+mapping.plot("map.png", colors=("#fde0dd", "#fa9fb5", "#c51b8a"))
+```
+
 The first panel displays state probabilities along the inferred map. The second
 panel compares inferred order with reference positions when available; otherwise it
 shows 95% bootstrap rank intervals. The palette is color-vision friendly, and SVG

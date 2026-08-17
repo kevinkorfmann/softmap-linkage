@@ -19,6 +19,11 @@ CONTEMPORARY_HYBRIDIZATION_URL = (
     "master/04_genetic_map/map6j_742_2082_gen.csv"
 )
 
+GRAV2_BASE_URL = "https://kbroman.org/qtl2/assets/sampledata/grav2"
+HYPER_BASE_URL = (
+    "https://raw.githubusercontent.com/kbroman/qtl/main/inst/contrib/bin/test"
+)
+
 
 @lru_cache(maxsize=4)
 def _read_url(source: str) -> str:
@@ -76,18 +81,18 @@ def demo(*, offspring: int = 80, markers: int = 60, seed: int = 4) -> LinkageDat
 def contemporary_hybridization(
     *,
     chromosome: int = 1,
-    markers: int = 100,
+    markers: int | None = None,
     source: str | Path = CONTEMPORARY_HYBRIDIZATION_URL,
 ) -> LinkageData:
     """Load one chromosome from the Rahnamae et al. Arabis map.
 
     NN and SS calls become probabilities 0.01 and 0.99. NS and missing calls are
     represented as 0.5 because their phase is unresolved in this binary example.
-    Markers are sampled evenly across the published map when ``markers`` is smaller
-    than the available chromosome marker count.
+    By default all chromosome markers are returned. Markers are sampled evenly
+    across the published map when ``markers`` is set below the available count.
     """
 
-    if markers < 2:
+    if markers is not None and markers < 2:
         raise ValueError("markers must be at least two")
     text = _read_source(source)
 
@@ -96,7 +101,7 @@ def contemporary_hybridization(
     rows = [row for row in reader if len(row) >= 5 and row[1] == str(chromosome)]
     if not rows:
         raise ValueError(f"chromosome {chromosome} was not found")
-    if markers < len(rows):
+    if markers is not None and markers < len(rows):
         indices = np.linspace(0, len(rows) - 1, markers).round().astype(int)
         rows = [rows[int(index)] for index in indices]
 
@@ -115,7 +120,7 @@ def contemporary_hybridization(
         probabilities,
         tuple(row[0] for row in rows),
         np.asarray([float(row[2]) for row in rows]),
-        f"Rahnamae et al. (2026), chromosome {chromosome}",
+        f"Rahnamae et al. (2025), chromosome {chromosome}",
         physical_positions,
     )
 
@@ -137,5 +142,96 @@ def contemporary_map_positions(
         np.asarray([int(row[1]) for row in rows]),
         np.asarray([float(row[0].rsplit("_", 1)[1]) for row in rows]),
         np.asarray([float(row[2]) for row in rows]),
-        "Rahnamae et al. (2026), physical and genetic map",
+        "Rahnamae et al. (2025), physical and genetic map",
+    )
+
+
+def grav2_ril(
+    *,
+    chromosome: int = 1,
+    markers: int | None = None,
+    genotype_source: str | Path = f"{GRAV2_BASE_URL}/grav2_geno.csv",
+    map_source: str | Path = f"{GRAV2_BASE_URL}/grav2_gmap.csv",
+) -> LinkageData:
+    """Load one chromosome from the Moore et al. Arabidopsis RIL experiment.
+
+    The R/qtl2 sample files contain two homozygous states, L and C. They become
+    probabilities 0.01 and 0.99; missing calls remain uninformative at 0.5.
+    Markers may be sampled evenly across the published map for a faster example.
+    """
+
+    genotype_rows = list(csv.reader(io.StringIO(_read_source(genotype_source))))
+    map_rows = list(csv.DictReader(io.StringIO(_read_source(map_source))))
+    if not genotype_rows or len(genotype_rows[0]) < 3:
+        raise ValueError("the grav2 genotype table is empty or malformed")
+    genotype_index = {name: index for index, name in enumerate(genotype_rows[0])}
+    selected = [row for row in map_rows if int(row["chr"]) == chromosome]
+    if not selected:
+        raise ValueError(f"chromosome {chromosome} was not found")
+    if markers is not None:
+        if markers < 2:
+            raise ValueError("markers must be at least two")
+        if markers < len(selected):
+            indices = np.linspace(0, len(selected) - 1, markers).round().astype(int)
+            selected = [selected[int(index)] for index in indices]
+
+    marker_names = tuple(row["marker"] for row in selected)
+    try:
+        columns = [genotype_index[name] for name in marker_names]
+    except KeyError as error:
+        raise ValueError(f"marker {error.args[0]!r} is absent from the genotype table") from error
+    calls = {"L": 0.01, "C": 0.99, "-": 0.5, "NA": 0.5, "": 0.5}
+    probabilities = np.asarray(
+        [[calls.get(row[column], 0.5) for column in columns] for row in genotype_rows[1:]],
+        dtype=np.float64,
+    )
+    return LinkageData(
+        probabilities,
+        marker_names,
+        np.asarray([float(row["pos"]) for row in selected]),
+        f"Moore et al. Arabidopsis RILs, chromosome {chromosome}",
+    )
+
+
+def hyper_backcross(
+    *,
+    chromosome: int | str = 1,
+    genotype_source: str | Path = f"{HYPER_BASE_URL}/genohyper.txt",
+    map_source: str | Path = f"{HYPER_BASE_URL}/markerposhyper.txt",
+    chromosome_source: str | Path = f"{HYPER_BASE_URL}/chridhyper.txt",
+) -> LinkageData:
+    """Load one chromosome from the Sugiyama et al. mouse backcross.
+
+    The R/qtl test export stores one offspring per row with calls 0, 1, and 9.
+    Binary calls become probabilities 0.01 and 0.99; 9 is missing and becomes
+    0.5. Published centimorgan coordinates provide an independent order check.
+    """
+
+    genotypes = [
+        row.split() for row in _read_source(genotype_source).splitlines() if row.strip()
+    ]
+    map_rows = [
+        row.split("\t") for row in _read_source(map_source).splitlines() if row.strip()
+    ]
+    chromosomes = [
+        row.strip() for row in _read_source(chromosome_source).splitlines() if row.strip()
+    ]
+    if not genotypes or len(map_rows) != len(chromosomes):
+        raise ValueError("the hyper backcross source tables are empty or misaligned")
+    if any(len(row) != len(map_rows) for row in genotypes):
+        raise ValueError("the hyper genotype rows do not match the marker map")
+    selected = [index for index, value in enumerate(chromosomes) if value == str(chromosome)]
+    if len(selected) < 2:
+        raise ValueError(f"chromosome {chromosome} was not found or has fewer than two markers")
+
+    calls = {"0": 0.01, "1": 0.99, "9": 0.5}
+    probabilities = np.asarray(
+        [[calls.get(row[index], 0.5) for index in selected] for row in genotypes],
+        dtype=np.float64,
+    )
+    return LinkageData(
+        probabilities,
+        tuple(map_rows[index][0] for index in selected),
+        np.asarray([float(map_rows[index][1]) for index in selected]),
+        f"Sugiyama et al. mouse backcross, chromosome {chromosome}",
     )

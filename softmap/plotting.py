@@ -16,12 +16,18 @@ if TYPE_CHECKING:
 PHYSICAL_GENETIC_COLORS = ("#fde0dd", "#fa9fb5", "#c51b8a")
 
 
-def plot_map(mapping: "Map", path: str | Path | None = None) -> "Figure":
+def plot_map(
+    mapping: "Map",
+    path: str | Path | None = None,
+    *,
+    colors: tuple[str, str, str] = PHYSICAL_GENETIC_COLORS,
+) -> "Figure":
     """Plot genotype structure and map agreement or bootstrap uncertainty."""
 
     try:
         import matplotlib as mpl
         import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
     except ImportError as error:
         raise ImportError(
             'Plotting requires matplotlib. Install with pip install "softmap-linkage[plot]".'
@@ -46,12 +52,13 @@ def plot_map(mapping: "Map", path: str | Path | None = None) -> "Figure":
         offspring = np.linspace(0, probability_order.shape[0] - 1, 160).round().astype(int)
         probability_order = probability_order[offspring]
 
+    cmap = LinearSegmentedColormap.from_list("softmap_probability", colors)
     fig, axes = plt.subplots(1, 2, figsize=(8.2, 3.35), constrained_layout=True)
     image = axes[0].imshow(
         probability_order,
         aspect="auto",
         interpolation="nearest",
-        cmap="cividis",
+        cmap=cmap,
         vmin=0,
         vmax=1,
         rasterized=True,
@@ -84,7 +91,7 @@ def plot_map(mapping: "Map", path: str | Path | None = None) -> "Figure":
         )
         fit_line = np.polyfit(published, inferred, 1)
         xline = np.linspace(float(published.min()), float(published.max()), 100)
-        axes[1].plot(xline, np.polyval(fit_line, xline), color="#D55E00", linewidth=1.4)
+        axes[1].plot(xline, np.polyval(fit_line, xline), color="#000000", linewidth=1.4)
         axes[1].set_title(f"Inferred and reference order  r = {correlation:.2f}")
         axes[1].set_xlabel("Reference map position (cM)")
         axes[1].set_ylabel("Inferred marker rank")

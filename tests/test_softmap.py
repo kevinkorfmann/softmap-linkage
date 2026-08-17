@@ -20,6 +20,7 @@ from softmap.core import (
     densify_framework_resampled_likelihood,
     expected_disagreement,
     fit_hierarchical_softmap,
+    fit_likelihood_mds_ensemble,
     fit_softmap,
     framework_exact_support,
     hmm_insertion_scores,
@@ -48,6 +49,48 @@ from softmap.cli import main as cli_main
 
 
 class SoftMapTests(unittest.TestCase):
+    def test_likelihood_mds_ensemble_returns_auditable_stability_bands(self):
+        cross = simulate_backcross(
+            n_offspring=40,
+            n_markers=25,
+            mean_depth=2.0,
+            heterozygous_state=True,
+            random_seed=101,
+        )
+        configs = (
+            ("rf", 1.0, 5, 1),
+            ("haldane", 1.0, 5, 1),
+            ("haldane", 2.0, 8, 2),
+        )
+        result = fit_likelihood_mds_ensemble(
+            cross.probabilities,
+            cross.marker_names,
+            candidate_configs=configs,
+            stability_mass=0.8,
+            maximum_smacof_iterations=20,
+        )
+        np.testing.assert_array_equal(np.sort(result.order), np.arange(25))
+        self.assertEqual(result.candidate_orders.shape, (3, 25))
+        self.assertEqual(result.candidate_positions.shape, (3, 25))
+        self.assertEqual(result.weighted_scores.shape, (9, 3))
+        self.assertTrue(np.all(result.interval_left <= result.interval_right))
+        self.assertIn(result.selected_config, configs)
+        self.assertIn(
+            result.status,
+            {"ok", "limited_order_information", "insufficient_order_information"},
+        )
+
+    def test_likelihood_public_api_exposes_selected_order_and_stability(self):
+        data = softmap.demo(offspring=30, markers=15, seed=17)
+        mapping = softmap.fit_likelihood(
+            data,
+            stability_mass=0.9,
+            maximum_smacof_iterations=20,
+        )
+        self.assertEqual(len(mapping.ordered_markers), 15)
+        self.assertEqual(len(mapping.marker_table()), 15)
+        self.assertEqual(mapping.summary()["candidate_orders"], 12)
+
     def test_small_public_api_returns_summary_and_order(self):
         data = softmap.demo(offspring=30, markers=20, seed=5)
         shuffled = data.shuffled(seed=2)
@@ -112,6 +155,42 @@ class SoftMapTests(unittest.TestCase):
             self.assertEqual(len(figure.axes), 2)
         np.testing.assert_allclose(positions.physical_mb, [0.5, 2.5, 1.0, 3.0])
         np.testing.assert_allclose(positions.genetic_cm, [0.0, 3.0, 0.0, 4.0])
+
+    def test_grav2_loader_accepts_local_sources(self):
+        genotypes = "id,m1,m2,m3\n1,L,C,-\n2,C,L,L\n"
+        genetic_map = "marker,chr,pos\nm1,1,0\nm2,1,5\nm3,2,0\n"
+        with TemporaryDirectory() as directory:
+            genotype_source = Path(directory) / "geno.csv"
+            map_source = Path(directory) / "map.csv"
+            genotype_source.write_text(genotypes)
+            map_source.write_text(genetic_map)
+            data = softmap.grav2_ril(
+                chromosome=1,
+                genotype_source=genotype_source,
+                map_source=map_source,
+            )
+        np.testing.assert_allclose(data.probabilities, [[0.01, 0.99], [0.99, 0.01]])
+        np.testing.assert_allclose(data.reference_positions, [0.0, 5.0])
+
+    def test_hyper_loader_accepts_local_sources(self):
+        genotypes = "0\t1\t9\n1\t0\t1\n"
+        genetic_map = "m1\t0.0\nm2\t4.0\nm3\t0.0\n"
+        chromosomes = "1\n1\n2\n"
+        with TemporaryDirectory() as directory:
+            genotype_source = Path(directory) / "geno.txt"
+            map_source = Path(directory) / "map.txt"
+            chromosome_source = Path(directory) / "chr.txt"
+            genotype_source.write_text(genotypes)
+            map_source.write_text(genetic_map)
+            chromosome_source.write_text(chromosomes)
+            data = softmap.hyper_backcross(
+                chromosome=1,
+                genotype_source=genotype_source,
+                map_source=map_source,
+                chromosome_source=chromosome_source,
+            )
+        np.testing.assert_allclose(data.probabilities, [[0.01, 0.99], [0.99, 0.01]])
+        np.testing.assert_allclose(data.reference_positions, [0.0, 4.0])
 
     def test_simulator_retains_read_counts_for_raw_data_comparators(self):
         cross = simulate_backcross(
@@ -816,6 +895,48 @@ class SoftMapTests(unittest.TestCase):
             summary = json.loads(stdout.getvalue())
             self.assertTrue(output_path.exists())
             self.assertGreater(summary["effective_offspring_information"], 0.0)
+
+    def test_likelihood_mds_cli_writes_stability_columns(self):
+        cross = simulate_backcross(
+            n_offspring=20,
+            n_markers=10,
+            mean_depth=2.0,
+            heterozygous_state=True,
+            random_seed=102,
+        )
+        with TemporaryDirectory() as directory:
+            input_path = Path(directory) / "probabilities.tsv"
+            output_path = Path(directory) / "map.tsv"
+            lines = [
+                "marker\t" + "\t".join(
+                    f"o{index + 1}" for index in range(cross.probabilities.shape[0])
+                )
+            ]
+            for marker, name in enumerate(cross.marker_names):
+                lines.append(
+                    name + "\t" + "\t".join(
+                        f"{value:.12g}"
+                        for value in cross.probabilities[:, marker]
+                    )
+                )
+            input_path.write_text("\n".join(lines) + "\n")
+            stdout = StringIO()
+            with patch(
+                "sys.argv",
+                [
+                    "softmap",
+                    str(input_path),
+                    str(output_path),
+                    "--likelihood-mds",
+                    "--smacof-iterations",
+                    "20",
+                ],
+            ), redirect_stdout(stdout):
+                cli_main()
+            summary = json.loads(stdout.getvalue())
+            header = output_path.read_text().splitlines()[0]
+            self.assertEqual(summary["method"], "SoftMap-LMDS-Ensemble")
+            self.assertIn("stability_rank_left", header)
 
     def test_fast_hmm_insertion_scores_match_brute_force(self):
         rng = np.random.default_rng(44)

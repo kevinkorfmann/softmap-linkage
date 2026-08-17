@@ -5,21 +5,49 @@ from __future__ import annotations
 import argparse
 import json
 
-from .core import fit_hierarchical_softmap, fit_softmap
+from .api import read_vcf
+from .core import (
+    fit_hierarchical_softmap,
+    fit_likelihood_mds_ensemble,
+    fit_softmap,
+)
 from .io import (
     read_probability_tsv,
     write_hierarchical_result_tsv,
+    write_likelihood_mds_result_tsv,
     write_result_tsv,
 )
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="softmap")
-    parser.add_argument("input", help="marker-by-offspring probability TSV")
+    parser.add_argument(
+        "input", help="VCF/VCF.GZ/BCF or marker-by-offspring probability TSV"
+    )
     parser.add_argument("output", help="output marker map TSV")
     parser.add_argument("--confidence", type=float, default=0.95)
     parser.add_argument("--bootstrap", type=int, default=100)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--chromosome", help="VCF chromosome/contig to fit")
+    parser.add_argument(
+        "--cross-design",
+        choices=("auto", "backcross", "ril", "doubled_haploid"),
+        default="auto",
+        help="binary cross encoding for VCF input",
+    )
+    parser.add_argument(
+        "--parents",
+        nargs=2,
+        metavar=("STATE0", "STATE1"),
+        help="VCF parent samples; STATE0 is recurrent parent for a backcross",
+    )
+    parser.add_argument(
+        "--likelihood-mds",
+        action="store_true",
+        help="use the robust likelihood-MDS ensemble and stability rank bands",
+    )
+    parser.add_argument("--stability-mass", type=float, default=0.90)
+    parser.add_argument("--smacof-iterations", type=int, default=500)
     parser.add_argument("--bin-threshold", type=float, default=0.01)
     parser.add_argument(
         "--auto-bin",
@@ -97,9 +125,49 @@ def main() -> None:
         parser.error("hierarchical/HMM controls require --hmm-lod")
     if args.coarse_only and not args.auto_bin:
         parser.error("--coarse-only is meaningful only with --auto-bin")
-    names, probabilities = read_probability_tsv(args.input)
+    if args.likelihood_mds and args.hmm_lod is not None:
+        parser.error("--likelihood-mds and --hmm-lod are mutually exclusive")
+    lower_input = args.input.lower()
+    if lower_input.endswith((".vcf", ".vcf.gz", ".bcf")):
+        data = read_vcf(
+            args.input,
+            chromosome=args.chromosome,
+            parents=tuple(args.parents) if args.parents is not None else None,
+            cross_design=args.cross_design,
+        )
+        names, probabilities = data.marker_names, data.probabilities
+    else:
+        if (
+            args.chromosome is not None
+            or args.parents is not None
+            or args.cross_design != "auto"
+        ):
+            parser.error("VCF input options require a .vcf, .vcf.gz, or .bcf input")
+        names, probabilities = read_probability_tsv(args.input)
     bin_threshold = None if args.auto_bin else args.bin_threshold
-    if args.hmm_lod is None:
+    if args.likelihood_mds:
+        result = fit_likelihood_mds_ensemble(
+            probabilities,
+            names,
+            stability_mass=args.stability_mass,
+            maximum_smacof_iterations=args.smacof_iterations,
+        )
+        write_likelihood_mds_result_tsv(result, args.output)
+        summary = {
+            "method": "SoftMap-LMDS-Ensemble",
+            "status": result.status,
+            "markers": len(names),
+            "candidate_orders": int(result.candidate_orders.shape[0]),
+            "selected_config": list(result.selected_config),
+            "unanimous_family_veto_triggered": (
+                result.unanimous_family_veto_triggered
+            ),
+            "stability_mass": result.stability_mass,
+            "stability_comparable_pair_fraction": (
+                result.stability_comparable_pair_fraction
+            ),
+        }
+    elif args.hmm_lod is None:
         result = fit_softmap(
             probabilities,
             names,
