@@ -96,6 +96,41 @@ class Map:
             "confidence": float(self.result.confidence),
         }
 
+    def marker_table(self) -> list[dict[str, str | int | bool | None]]:
+        """Return one inspectable result row for every input marker.
+
+        Rows contain the marker name, co-segregation bin, inferred bin rank,
+        representative status, optional framework rank, and bootstrap placement
+        bounds. The return value uses only built-in Python types, so it can be
+        printed directly or passed to a table library such as pandas.
+        """
+
+        result = self.result
+        rank_by_group = np.empty(
+            result.representative_order.size,
+            dtype=np.int64,
+        )
+        rank_by_group[result.representative_order] = np.arange(
+            result.representative_order.size
+        )
+        framework_rank = {
+            int(group): rank for rank, group in enumerate(result.framework)
+        }
+        rows: list[dict[str, str | int | bool | None]] = []
+        for marker, name in enumerate(self.data.marker_names):
+            group = int(result.bins.membership[marker])
+            representative = int(result.bins.representatives[group])
+            rows.append({
+                "marker": name,
+                "bin": group,
+                "order_rank": int(rank_by_group[group]),
+                "is_representative": marker == representative,
+                "framework_rank": framework_rank.get(group),
+                "interval_left": int(result.interval_left[group]),
+                "interval_right": int(result.interval_right[group]),
+            })
+        return rows
+
     def plot(self, path: str | Path | None = None):
         """Create the standard overview figure and optionally save it."""
 

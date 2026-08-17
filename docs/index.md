@@ -11,11 +11,23 @@ import softmap
 
 data = softmap.demo()
 mapping = softmap.fit(data)
-mapping.plot("map.png")
+figure = mapping.plot("map.png")
+
+print(mapping.summary())
+print(mapping.ordered_markers[:5])
+print(mapping.marker_table()[:5])
 ```
 
 SoftMap reports marker bins, an inferred order, bootstrap rank uncertainty, and a
-framework of markers whose pairwise order reaches the requested support.
+framework of markers whose pairwise order reaches the requested support. The code
+above writes this complete example map and keeps the Matplotlib figure available
+for inspection or customization:
+
+![SoftMap runnable demo result](assets/softmap_demo_map.png)
+
+The [step-by-step guide](guide.md#3-run-a-small-example) explains both panels and
+shows how to inspect every marker's bin, rank, framework membership, and bootstrap
+interval.
 
 New users can follow the [step-by-step guide](guide.md) from installation through
 preparing their own data, validating the input, fitting a diagnostic map, and

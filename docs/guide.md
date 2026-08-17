@@ -37,7 +37,7 @@ Open a terminal in a new working directory and run:
     python3 -m venv .venv
     source .venv/bin/activate
     python -m pip install --upgrade pip
-    python -m pip install "softmap-linkage[plot]"
+    python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
     ```
 
 === "Windows PowerShell"
@@ -46,8 +46,11 @@ Open a terminal in a new working directory and run:
     py -m venv .venv
     .venv\Scripts\Activate.ps1
     python -m pip install --upgrade pip
-    python -m pip install "softmap-linkage[plot]"
+    python -m pip install "softmap-linkage[plot] @ git+https://github.com/kevinkorfmann/softmap-linkage.git"
     ```
+
+The package is currently installed from its GitHub repository because it has not
+yet been released on PyPI.
 
 Check the installation:
 
@@ -60,28 +63,27 @@ environment again before running SoftMap.
 
 ## 3. Run a small example
 
-Create a file named `first_map.py`:
+Create a file named `first_map.py`. This complete example fits a map, saves the
+figure, and prints results that you can inspect:
 
 ```python
 from pprint import pprint
 
 import softmap
 
-# Generate a small, reproducible example dataset.
-data = softmap.demo(offspring=80, markers=60, seed=4)
+# Generate, fit, and plot a reproducible simulated backcross.
+data = softmap.demo()
+mapping = softmap.fit(data)
+figure = mapping.plot("map.png")
 
-# Use a short run while checking that the workflow works.
-mapping = softmap.fit(
-    data,
-    bootstrap=20,
-    confidence=0.8,
-    seed=7,
-)
-
+print("Fit summary")
 pprint(mapping.summary())
-print("First 10 ordered markers:", mapping.ordered_markers[:10])
-print("Supported framework:", mapping.framework_markers)
-mapping.plot("softmap_example.svg")
+print("\nFirst five ordered markers")
+pprint(mapping.ordered_markers[:5])
+print("\nFirst five marker records")
+pprint(mapping.marker_table()[:5])
+print("\nPlot panels")
+pprint([axis.get_title() for axis in figure.axes if axis.get_title()])
 ```
 
 Run it:
@@ -90,10 +92,19 @@ Run it:
 python first_map.py
 ```
 
-The terminal should print a summary and marker names. The same directory should
-now contain `softmap_example.svg`. Open that file in a browser or image viewer.
+The terminal prints the fit summary, ordered markers, detailed marker records, and
+plot-panel titles. The same directory now contains `map.png`. Open it in a browser
+or image viewer; it should look like this:
 
-The example uses only 20 bootstrap replicates so that it finishes quickly. That is
+![SoftMap runnable demo result](assets/softmap_demo_map.png)
+
+The left panel displays parental-state probabilities after ordering. Long,
+contiguous blocks are inheritance segments and changes between them are candidate
+crossovers. Gray values are uncertain observations. The right panel compares the
+inferred ranks with the known reference positions for this simulated dataset. The
+orientation is aligned only for display.
+
+The default uses 20 bootstrap replicates so that it finishes quickly. That is
 enough for learning and code checks, but not for a final scientific analysis.
 
 ## 4. Understand the example result
@@ -113,6 +124,30 @@ enough for learning and code checks, but not for a final scientific analysis.
 `mapping.framework_markers` is the smaller, more defensible ordered framework. The
 full order is useful for exploration, but biological conclusions should reflect
 the framework and the uncertainty shown in the plot.
+
+`mapping.marker_table()` gives one dictionary per input marker. Each row contains:
+
+| Field | Meaning |
+| --- | --- |
+| `marker` | Input marker name. |
+| `bin` | Co-segregation bin identifier. |
+| `order_rank` | Inferred rank of the marker's bin. |
+| `is_representative` | Whether this marker represents its bin in the fitted order. |
+| `framework_rank` | Supported framework position, or `None` when it is not in the framework. |
+| `interval_left`, `interval_right` | Bootstrap placement bounds in representative-bin ranks. |
+
+The plot call returns a standard Matplotlib `Figure`. You can inspect or customize
+it before saving another version:
+
+```python
+print(figure.axes)
+figure.suptitle("My first SoftMap result")
+figure.savefig("map.svg", bbox_inches="tight")
+```
+
+The input remains available as `mapping.data`, and the fitted low-level result as
+`mapping.result`. Most first analyses only need `summary()`, `ordered_markers`,
+`framework_markers`, `marker_table()`, and `plot()`.
 
 Map orientation is arbitrary: a reversed order represents the same linkage map.
 Several markers can also occupy one co-segregation bin when the offspring contain
