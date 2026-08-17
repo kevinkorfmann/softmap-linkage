@@ -935,12 +935,17 @@ matrix of phased, binary parental-origin probabilities.</p>
 <h2 id="1-check-that-your-data-are-suitable">1. Check that your data are suitable</h2>
 <p>Use SoftMap when all of the following are true:</p>
 <ul>
-<li>Your population is doubled haploid, backcross, or a phased RIL-like population.</li>
+<li>Your population is doubled haploid, backcross, or a phased recombinant inbred
+  line (RIL) population.</li>
 <li>Each marker can be expressed as the probability of inheriting parental state 1.</li>
 <li>Markers have already been assigned to a linkage group; you will analyze one
   group at a time.</li>
 <li>Your matrix has at least two offspring and two markers.</li>
 </ul>
+<p>A recombinant inbred line (RIL) is a nearly homozygous line produced by repeatedly
+inbreeding descendants of a cross between two parents. Each RIL carries a stable
+mosaic of the two parental genomes. Here, <strong>phased RIL</strong> means that the genotype at
+each marker can be assigned consistently to parent 1 or parent 2.</p>
 <p>Probabilities near <code>0</code> and <code>1</code> mean strong evidence for the two parental states.
 Use <code>0.5</code> when the state is unknown. In particular, do not convert an unphased
 heterozygote to a confident <code>0</code> or <code>1</code>.</p>
